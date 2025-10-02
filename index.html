@@ -719,6 +719,14 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Add cursor movement tracking
+window.addEventListener('mousemove', e => {
+    const cursor = document.getElementById('custom-cursor');
+    if (cursor) {
+        // This uses transform for smoother, hardware-accelerated movement
+        cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+    }
+});
         const getEl = (id) => document.getElementById(id);
         const splashScreen = getEl('splash-screen'), welcomeContainer = getEl('welcome-container'), quizContainer = getEl('quiz-container'), resultsContainer = getEl('results-container');
         const startBtn = getEl('start-btn'), nextBtn = getEl('next-btn'), settingsBtn = getEl('settings-btn'), aboutBtn = getEl('about-btn');
