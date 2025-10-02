@@ -638,10 +638,11 @@
 
   <div id="copyright-text"></div>
 
-  <script>
+    <script>
     /*
-        Cyber Security Quiz - v17.1 (Oct 2, 2025)
-        - Applied fixes for cursor movement, local storage safety, state management, and accessibility.
+        Cyber Security Quiz - v17.5 (Oct 2, 2025)
+        - Fixed hint button functionality for both normal and hard modes.
+        - No changes made to server-side password check.
     */
     const MASTER_QUIZ_DATA = [
         { question: "A 'phishing' email is designed to...", options: ["Trick you into revealing personal information", "Sell you a product", "Update your software", "Entertain you"], answer: 0, difficulty: 'easy', keyTip: "Be wary of emails asking for personal info.", explanation: "Phishing scams use deceptive emails to trick you into giving away sensitive info like <strong>passwords or credit card numbers</strong>. They often create a sense of urgency." },
@@ -724,17 +725,6 @@
         const startBtn = getEl('start-btn'), nextBtn = getEl('next-btn'), settingsBtn = getEl('settings-btn'), aboutBtn = getEl('about-btn');
         const modalOverlay = getEl('modal-overlay'), modalContent = getEl('modal-content');
         const copyrightText = getEl('copyright-text'), customCursor = getEl('custom-cursor'), screenFlash = document.querySelector('.screen-flash');
-      // PASTE THE NEW CODE HERE
-// Consolidated event listener for the custom cursor
-window.addEventListener('mousemove', e => {
-    // Only update position if the glow cursor is enabled
-    if (document.body.classList.contains('glow-cursor')) {
-        // Ensure the cursor is visible and follows the mouse
-        customCursor.style.opacity = '1';
-        customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-    }
-});
-
         const roundTitleEl = getEl('round-title'), feedbackArea = getEl('feedback-area');
         const correctSound = getEl('correct-sound'), incorrectSound = getEl('incorrect-sound');
         const roundIntroBanner = getEl('round-intro-banner'), reviewBtn = getEl('review-btn'), goHomeBtn = getEl('go-home-btn');
@@ -743,6 +733,32 @@ window.addEventListener('mousemove', e => {
         const scoreDisplayArea = getEl('score-display-area'), highScoreArea = getEl('high-score-area'), saveScoreArea = getEl('save-score-area');
         const leaderboardArea = getEl('leaderboard-area'), resultsLeaderboardArea = getEl('results-leaderboard-area');
         const streakCounter = getEl('streak-counter'), hintBtn = getEl('hint-btn'), achievementsEarned = getEl('achievements-earned');
+
+        // --- Custom Cursor Logic ---
+        window.addEventListener('mousemove', e => {
+            if (document.body.classList.contains('glow-cursor')) {
+                window.requestAnimationFrame(() => {
+                    customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+                });
+            }
+        });
+        document.body.addEventListener('mouseenter', () => {
+            if (document.body.classList.contains('glow-cursor')) {
+                customCursor.style.opacity = '1';
+            }
+        });
+        document.body.addEventListener('mouseleave', () => {
+             customCursor.style.opacity = '0';
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.body.classList.contains('glow-cursor')) {
+                if (document.hidden) {
+                    customCursor.style.opacity = '0';
+                } else {
+                    customCursor.style.opacity = '1';
+                }
+            }
+        });
 
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
         function shuffleSet(masterSet) { const shuffled = JSON.parse(JSON.stringify(masterSet)); shuffled.forEach(q => { const c = q.options[q.answer]; shuffleArray(q.options); q.answer = q.options.indexOf(c); }); return shuffled; }
