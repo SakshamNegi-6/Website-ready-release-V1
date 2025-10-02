@@ -724,6 +724,17 @@
         const startBtn = getEl('start-btn'), nextBtn = getEl('next-btn'), settingsBtn = getEl('settings-btn'), aboutBtn = getEl('about-btn');
         const modalOverlay = getEl('modal-overlay'), modalContent = getEl('modal-content');
         const copyrightText = getEl('copyright-text'), customCursor = getEl('custom-cursor'), screenFlash = document.querySelector('.screen-flash');
+      // PASTE THE NEW CODE HERE
+// Consolidated event listener for the custom cursor
+window.addEventListener('mousemove', e => {
+    // Only update position if the glow cursor is enabled
+    if (document.body.classList.contains('glow-cursor')) {
+        // Ensure the cursor is visible and follows the mouse
+        customCursor.style.opacity = '1';
+        customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+    }
+});
+
         const roundTitleEl = getEl('round-title'), feedbackArea = getEl('feedback-area');
         const correctSound = getEl('correct-sound'), incorrectSound = getEl('incorrect-sound');
         const roundIntroBanner = getEl('round-intro-banner'), reviewBtn = getEl('review-btn'), goHomeBtn = getEl('go-home-btn');
