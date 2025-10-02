@@ -719,12 +719,13 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Add cursor movement tracking
-window.addEventListener('mousemove', e => {
-    const cursor = document.getElementById('custom-cursor');
-    if (cursor) {
-        // This uses transform for smoother, hardware-accelerated movement
-        cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+     window.addEventListener('mousemove', e => {
+    if (document.body.classList.contains('glow-cursor')) {
+        const customCursor = document.getElementById('custom-cursor');
+        if (customCursor) {
+            customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+            customCursor.style.opacity = '1';
+        }
     }
 });
         const getEl = (id) => document.getElementById(id);
