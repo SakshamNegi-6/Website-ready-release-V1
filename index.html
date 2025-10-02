@@ -637,11 +637,8 @@
 
   <script>
     /*
-        Cyber Security Quiz - v16 (Oct 2, 2025)
-        - Fixed conflict between Light Theme and High Contrast mode.
-        - Enabled starfield on light theme with appropriate color.
-        - Fixed Master Reset to properly clear all settings data.
-        - Renumbered version history.
+        Cyber Security Quiz - v17 (Oct 2, 2025)
+        - Implemented the final, secure server-side password check.
     */
     const MASTER_QUIZ_DATA = [
         { question: "A 'phishing' email is designed to...", options: ["Trick you into revealing personal information", "Sell you a product", "Update your software", "Entertain you"], answer: 0, difficulty: 'easy', keyTip: "Be wary of emails asking for personal info.", explanation: "Phishing scams use deceptive emails to trick you into giving away sensitive info like <strong>passwords or credit card numbers</strong>. They often create a sense of urgency." },
@@ -1003,14 +1000,24 @@
                 ]
             });
 
-            if (password.button === 'submit' && password.value === 'hianime.2810@gmail.com') {
-                return true;
-            } else {
-                if (password.button === 'submit') {
-                    showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
+            if (password.button === 'submit') {
+                try {
+                    // This now calls your secure function on the server
+                    const response = await fetch('/.netlify/functions/check-password', {
+                        method: 'POST',
+                        body: JSON.stringify({ attempt: password.value })
+                    });
+
+                    if (response.ok) {
+                        return true; 
+                    }
+                } catch (error) {
+                    console.error('Error contacting server:', error);
                 }
-                return false;
             }
+            
+            showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
+            return false;
         }
 
         startBtn.onclick = () => { initializeQuizData(); welcomeContainer.classList.add('hidden'); quizContainer.classList.remove('hidden'); progressBar.style.width = `0%`; showRoundBanner(0, () => { loadQuestion(); progressBar.style.width = `${((currentQuestion) / quizData.length) * 100}%`; }); };
@@ -1054,7 +1061,7 @@
             } 
         };
         aboutBtn.onclick = () => {
-            const aboutHTML = `<h2>About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h2 style="margin-top: 25px;">Credit</h2><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h2 style="margin-top: 25px;">Version History</h2><div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 15px;"><p>V16: Fixed Master Reset & Theme/Contrast conflict.</p><p>V15: Renumbered version history.</p><p>V14: Fixed UI bugs for Leaderboard, Review, and Go Home buttons.</p><p>V13: Added password protection to all admin functions.</p><p>V12: Corrected "New Player Reset" function.</p><p>V11: Reordered results page and added scroll indicator.</p><p>V10: Restored missing HTML element causing quiz to fail.</p><p>V9: Implemented Solarized theme and UI consistency fixes.</p><p>V8: Patched glitches and updated admin password.</p><p>V7: Implemented the animated starfield background.</p><p>V6: Added audio feedback for correct and incorrect answers.</p><p>V5: Implemented the 'Review Answers' feature.</p><p>V4: Added the local leaderboard functionality.</p><p>V3: Implemented the medal system.</p><p>V2: Added 'Hard Mode' special rounds.</p><p>V1: Initial quiz development and bug fixes.</p></div>`;
+            const aboutHTML = `<h2>About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h2 style="margin-top: 25px;">Credit</h2><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h2 style="margin-top: 25px;">Version History</h2><div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 15px;"><p>V17: Implemented final, secure server-side password check.</p><p>V16: Fixed Master Reset & Theme/Contrast conflict.</p><p>V15: Renumbered version history.</p><p>V14: Fixed UI bugs for Leaderboard, Review, and Go Home buttons.</p><p>V13: Added password protection to all admin functions.</p><p>V12: Corrected "New Player Reset" function.</p><p>V11: Reordered results page and added scroll indicator.</p><p>V10: Restored missing HTML element causing quiz to fail.</p><p>V9: Implemented Solarized theme and UI consistency fixes.</p><p>V8: Patched glitches and updated admin password.</p><p>V7: Implemented the animated starfield background.</p><p>V6: Added audio feedback for correct and incorrect answers.</p><p>V5: Implemented the 'Review Answers' feature.</p><p>V4: Added the local leaderboard functionality.</p><p>V3: Implemented the medal system.</p><p>V2: Added 'Hard Mode' special rounds.</p><p>V1: Initial quiz development and bug fixes.</p></div>`;
             showCustomModal({ customHTML: aboutHTML });
         };
         settingsBtn.onclick = async () => {
