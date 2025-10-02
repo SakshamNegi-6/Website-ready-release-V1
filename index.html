@@ -719,15 +719,6 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-     window.addEventListener('mousemove', e => {
-    if (document.body.classList.contains('glow-cursor')) {
-        const customCursor = document.getElementById('custom-cursor');
-        if (customCursor) {
-            customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-            customCursor.style.opacity = '1';
-        }
-    }
-});
         const getEl = (id) => document.getElementById(id);
         const splashScreen = getEl('splash-screen'), welcomeContainer = getEl('welcome-container'), quizContainer = getEl('quiz-container'), resultsContainer = getEl('results-container');
         const startBtn = getEl('start-btn'), nextBtn = getEl('next-btn'), settingsBtn = getEl('settings-btn'), aboutBtn = getEl('about-btn');
@@ -1163,12 +1154,6 @@
         setTimeout(() => { splashScreen.style.opacity = '0'; splashScreen.style.visibility = 'hidden'; }, 2500);
         
         initStarfield(starfieldCanvas); applySettings(); displayLeaderboard(leaderboardArea);
-        
-        // --- MODIFIED CURSOR EVENT LISTENER ---
-        window.addEventListener('mousemove', e => {
-            // This uses transform for smoother, hardware-accelerated movement
-            customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-        });
         
         copyrightText.textContent = `© 2025 Saksham Negi. All Rights Reserved.`;
         document.addEventListener('keydown', (e) => { if (modalOverlay.classList.contains('show')) return; if(!quizContainer.classList.contains('hidden')) { const n = parseInt(e.key); if (n >= 1 && n <= 4) { const b = document.querySelectorAll('.options button:not(:disabled)'); if(b[n-1]) b[n-1].click(); } else if (e.key === 'Enter' && !nextBtn.classList.contains('hidden')) { nextBtn.click(); } } });
