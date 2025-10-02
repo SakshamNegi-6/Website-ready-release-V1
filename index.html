@@ -134,10 +134,13 @@
     body.reduce-motion #starfield-canvas, body.reduce-motion .scroll-down-arrow { display: none; }
     #custom-cursor {
         position: fixed; width: 30px; height: 30px; border: 2px solid var(--accent-glow);
-        border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%);
-        z-index: 10001; transition: transform 0.1s ease-out, opacity 0.3s;
+        border-radius: 50%; pointer-events: none;
+        /* The cursor is now positioned via transform for performance */
+        left: 0; top: 0;
+        z-index: 10001; transition: opacity 0.3s;
         box-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-glow);
         opacity: 0;
+        transform: translate(-50%, -50%); /* This keeps it centered on the point */
     }
     body.glow-cursor { cursor: none; }
     body.glow-cursor #custom-cursor { opacity: 1; }
@@ -637,8 +640,8 @@
 
   <script>
     /*
-        Cyber Security Quiz - v17 (Oct 2, 2025)
-        - Implemented the final, secure server-side password check.
+        Cyber Security Quiz - v17.1 (Oct 2, 2025)
+        - Applied fixes for cursor movement, local storage safety, state management, and accessibility.
     */
     const MASTER_QUIZ_DATA = [
         { question: "A 'phishing' email is designed to...", options: ["Trick you into revealing personal information", "Sell you a product", "Update your software", "Entertain you"], answer: 0, difficulty: 'easy', keyTip: "Be wary of emails asking for personal info.", explanation: "Phishing scams use deceptive emails to trick you into giving away sensitive info like <strong>passwords or credit card numbers</strong>. They often create a sense of urgency." },
@@ -682,7 +685,6 @@
         quick_learner: { name: 'Quick Learner', emoji: '🧠', description: 'Used a hint and still got the answer correct.' }
     };
     
-    let quizData = [], HARD_MODE_QUESTIONS_1 = [], HARD_MODE_QUESTIONS_2 = [];
     const roundTitles = ["Round 1: The Basics", "Round 2: Account Security", "Round 3: Safe Habits", "Round 4: Advanced Threats"];
     const roundIntroData = [
         { title: "Round 1: The Basics", message: "Let's get started!" },
@@ -690,14 +692,31 @@
         { title: "Round 3: Safe Habits", message: "Time for some safe habits!" },
         { title: "Round 4: Advanced Threats", message: "Prepare for the advanced threats!" }
     ];
-    let currentQuestion = 0, score = 0;
-    let userAnswers = new Array(MASTER_QUIZ_DATA.length).fill(null);
     const roundQuestions = 5;
-    let currentReviewIndex = 0, fullReviewData = [], scoreSaved = false;
-    let currentStreak = 0, hintsRemaining = 2, sessionAchievements = new Set();
-    let gameplayStats = { roundCorrect: [0, 0, 0, 0], hm1_totalTime: 0, hm2_totalTime: 0, hm_clutch: false, usedHintAndCorrect: false };
-    let hardModeActive = false, hardModeQuestionIndex = 0, questionTimer, timeLeft = 0;
-    let activeHardModeSet = [], hardModeUserAnswers1 = new Array(MASTER_HARD_MODE_1.length).fill(null), hardModeUserAnswers2 = new Array(MASTER_HARD_MODE_2.length).fill(null);
+
+    // Centralized state object for better management
+    const state = {
+        quizData: [],
+        HARD_MODE_QUESTIONS_1: [],
+        HARD_MODE_QUESTIONS_2: [],
+        currentQuestion: 0,
+        score: 0,
+        userAnswers: [],
+        hardModeUserAnswers1: [],
+        hardModeUserAnswers2: [],
+        currentReviewIndex: 0,
+        fullReviewData: [],
+        scoreSaved: false,
+        currentStreak: 0,
+        hintsRemaining: 2,
+        sessionAchievements: new Set(),
+        gameplayStats: {},
+        hardModeActive: false,
+        hardModeQuestionIndex: 0,
+        questionTimer: null,
+        timeLeft: 0,
+        activeHardModeSet: []
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
         const getEl = (id) => document.getElementById(id);
@@ -716,69 +735,98 @@
 
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
         function shuffleSet(masterSet) { const shuffled = JSON.parse(JSON.stringify(masterSet)); shuffled.forEach(q => { const c = q.options[q.answer]; shuffleArray(q.options); q.answer = q.options.indexOf(c); }); return shuffled; }
+        
         function initializeQuizData() {
-            quizData = shuffleSet(MASTER_QUIZ_DATA); HARD_MODE_QUESTIONS_1 = shuffleSet(MASTER_HARD_MODE_1); HARD_MODE_QUESTIONS_2 = shuffleSet(MASTER_HARD_MODE_2);
-            userAnswers.fill(null); hardModeUserAnswers1.fill(null); hardModeUserAnswers2.fill(null);
-            score = 0; currentQuestion = 0; hardModeActive = false; hardModeQuestionIndex = 0; scoreSaved = false;
-            currentStreak = 0; hintsRemaining = 2; sessionAchievements = new Set();
-            gameplayStats = { roundCorrect: [0, 0, 0, 0], hm1_totalTime: 0, hm2_totalTime: 0, hm_clutch: false, usedHintAndCorrect: false };
-            updateStreakCounter(); clearInterval(questionTimer); quizContainer.classList.remove('hard-mode'); timerBarContainer.style.display = 'none';
+            state.quizData = shuffleSet(MASTER_QUIZ_DATA);
+            state.HARD_MODE_QUESTIONS_1 = shuffleSet(MASTER_HARD_MODE_1);
+            state.HARD_MODE_QUESTIONS_2 = shuffleSet(MASTER_HARD_MODE_2);
+            state.userAnswers = new Array(MASTER_QUIZ_DATA.length).fill(null);
+            state.hardModeUserAnswers1 = new Array(MASTER_HARD_MODE_1.length).fill(null);
+            state.hardModeUserAnswers2 = new Array(MASTER_HARD_MODE_2.length).fill(null);
+            state.score = 0; state.currentQuestion = 0; state.hardModeActive = false; state.hardModeQuestionIndex = 0; state.scoreSaved = false;
+            state.currentStreak = 0; state.hintsRemaining = 2; state.sessionAchievements = new Set();
+            state.gameplayStats = { roundCorrect: [0, 0, 0, 0], hm1_totalTime: 0, hm2_totalTime: 0, hm_clutch: false, usedHintAndCorrect: false };
+            updateStreakCounter(); clearInterval(state.questionTimer); quizContainer.classList.remove('hard-mode'); timerBarContainer.style.display = 'none';
         }
+
         function applySettings() {
+            let settings = {};
             try {
-                const settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
-                document.body.classList.toggle('glow-cursor', settings.glowCursor); document.body.classList.toggle('minimal-bg', settings.minimalBg);
-                document.body.classList.toggle('high-contrast', settings.highContrast); document.body.classList.toggle('large-text', settings.largeText);
-                document.body.classList.toggle('reduce-motion', settings.reduceMotion); document.body.classList.toggle('light-theme', settings.theme === 'light');
-            } catch (e) { console.error("Could not apply settings:", e); }
+                settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
+            } catch (e) {
+                console.error("Could not parse settings from localStorage", e);
+            }
+            document.body.classList.toggle('glow-cursor', settings.glowCursor); document.body.classList.toggle('minimal-bg', settings.minimalBg);
+            document.body.classList.toggle('high-contrast', settings.highContrast); document.body.classList.toggle('large-text', settings.largeText);
+            document.body.classList.toggle('reduce-motion', settings.reduceMotion); document.body.classList.toggle('light-theme', settings.theme === 'light');
         }
+
         function updateSetting(key, value) {
-            try { let s = JSON.parse(localStorage.getItem('quizSettings')) || {}; s[key] = value; localStorage.setItem('quizSettings', JSON.stringify(s)); } catch (e) { console.error("Could not update setting:", e); }
+            let settings = {};
+            try {
+                settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
+            } catch (e) {
+                console.error("Could not parse settings for update", e);
+            }
+            settings[key] = value;
+            try {
+                localStorage.setItem('quizSettings', JSON.stringify(settings));
+            } catch (e) {
+                console.error("Could not update setting in localStorage:", e);
+            }
             applySettings();
         }
 
         function loadQuestion() {
-            if (currentQuestion >= quizData.length) {
+            if (state.currentQuestion >= state.quizData.length) {
                 showResults();
                 return;
             }
-            const q = quizData[currentQuestion];
-            const roundIdx = Math.floor(currentQuestion / roundQuestions); roundTitleEl.textContent = roundTitles[roundIdx];
-            if (currentQuestion % roundQuestions === 0) { roundTitleEl.classList.remove('animate-in'); void roundTitleEl.offsetWidth; roundTitleEl.classList.add('animate-in'); }
-            questionEl.textContent = q.question; optionsEl.innerHTML = "";
+            const q = state.quizData[state.currentQuestion];
+            const roundIdx = Math.floor(state.currentQuestion / roundQuestions); roundTitleEl.textContent = roundTitles[roundIdx];
+            if (state.currentQuestion % roundQuestions === 0) { roundTitleEl.classList.remove('animate-in'); void roundTitleEl.offsetWidth; roundTitleEl.classList.add('animate-in'); }
+            questionEl.textContent = q.question;
+            optionsEl.textContent = ""; // Safer way to clear
             q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
-            hintBtn.disabled = hintsRemaining <= 0; hintBtn.textContent = `💡 Hint (${hintsRemaining})`;
-            nextBtn.style.display = "none"; feedbackArea.innerHTML = ""; feedbackArea.className = "";
+            hintBtn.disabled = state.hintsRemaining <= 0; hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`;
+            nextBtn.style.display = "none"; feedbackArea.textContent = ""; feedbackArea.className = "";
         }
-        function updateStreakCounter() { if(currentStreak > 1) { streakCounter.textContent = `🔥 Streak: ${currentStreak}`; streakCounter.classList.add('visible'); } else { streakCounter.classList.remove('visible'); } }
+
+        function updateStreakCounter() { if(state.currentStreak > 1) { streakCounter.textContent = `🔥 Streak: ${state.currentStreak}`; streakCounter.classList.add('visible'); } else { streakCounter.classList.remove('visible'); } }
+        
         function checkAnswer(selectedIndex, timedOut = false) {
-            clearInterval(questionTimer); timerBarContainer.style.display = 'none';
+            clearInterval(state.questionTimer); timerBarContainer.style.display = 'none';
             const optionButtons = document.querySelectorAll("#options button"); let correctIndex, isCorrect = false;
-            if (hardModeActive) {
-                const timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
-                const timeTaken = timerDuration - timeLeft;
-                if(currentQuestion === 10) gameplayStats.hm1_totalTime += timeTaken; else gameplayStats.hm2_totalTime += timeTaken;
-                if(!timedOut && timeLeft < 3) gameplayStats.hm_clutch = true;
-                const set = (currentQuestion === 10) ? HARD_MODE_QUESTIONS_1 : HARD_MODE_QUESTIONS_2;
-                const answers = (currentQuestion === 10) ? hardModeUserAnswers1 : hardModeUserAnswers2;
-                correctIndex = set[hardModeQuestionIndex].answer; answers[hardModeQuestionIndex] = selectedIndex;
-                if (selectedIndex === correctIndex) { isCorrect = true; score += 2; feedbackArea.innerHTML = '<strong>Correct! +2 Points ✅</strong>'; feedbackArea.className = 'correct visible'; }
-                else { score = Math.max(0, score - 1); feedbackArea.innerHTML = timedOut ? '<strong>Time\'s Up! -1 Point ⏳</strong>' : '<strong>Incorrect! -1 Point ❌</strong>'; feedbackArea.className = 'incorrect visible'; }
+
+            if (state.hardModeActive) {
+                let timerDuration = 15;
+                try { timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15; } catch(e) {}
+                const timeTaken = timerDuration - state.timeLeft;
+                if(state.currentQuestion === 10) state.gameplayStats.hm1_totalTime += timeTaken; else state.gameplayStats.hm2_totalTime += timeTaken;
+                if(!timedOut && state.timeLeft < 3) state.gameplayStats.hm_clutch = true;
+                const set = (state.currentQuestion === 10) ? state.HARD_MODE_QUESTIONS_1 : state.HARD_MODE_QUESTIONS_2;
+                const answers = (state.currentQuestion === 10) ? state.hardModeUserAnswers1 : state.hardModeUserAnswers2;
+                correctIndex = set[state.hardModeQuestionIndex].answer; answers[state.hardModeQuestionIndex] = selectedIndex;
+                if (selectedIndex === correctIndex) { isCorrect = true; state.score += 2; feedbackArea.innerHTML = '<strong>Correct! +2 Points ✅</strong>'; feedbackArea.className = 'correct visible'; }
+                else { state.score = Math.max(0, state.score - 1); feedbackArea.innerHTML = timedOut ? '<strong>Time\'s Up! -1 Point ⏳</strong>' : '<strong>Incorrect! -1 Point ❌</strong>'; feedbackArea.className = 'incorrect visible'; }
             } else {
-                correctIndex = quizData[currentQuestion].answer; userAnswers[currentQuestion] = selectedIndex;
-                if (selectedIndex === correctIndex) { isCorrect = true; gameplayStats.roundCorrect[Math.floor(currentQuestion / roundQuestions)]++; score++; feedbackArea.innerHTML = '<strong>Correct! ✅</strong>'; feedbackArea.className = 'correct visible'; }
+                correctIndex = state.quizData[state.currentQuestion].answer; state.userAnswers[state.currentQuestion] = selectedIndex;
+                if (selectedIndex === correctIndex) { isCorrect = true; state.gameplayStats.roundCorrect[Math.floor(state.currentQuestion / roundQuestions)]++; state.score++; feedbackArea.innerHTML = '<strong>Correct! ✅</strong>'; feedbackArea.className = 'correct visible'; }
                 else { feedbackArea.innerHTML = '<strong>Not quite! The right answer is highlighted.</strong>'; feedbackArea.className = 'incorrect visible'; }
             }
+
             if(isCorrect) {
-                currentStreak++; if(currentStreak > 0 && currentStreak % 5 === 0) { score++; feedbackArea.innerHTML += ' <strong>+1 Streak Bonus!</strong>'; }
-                if(hintBtn.disabled && hintsRemaining < 2) gameplayStats.usedHintAndCorrect = true;
+                state.currentStreak++; if(state.currentStreak > 0 && state.currentStreak % 5 === 0) { state.score++; feedbackArea.innerHTML += ' <strong>+1 Streak Bonus!</strong>'; }
+                if(hintBtn.disabled && state.hintsRemaining < 2) state.gameplayStats.usedHintAndCorrect = true;
                 correctSound.play().catch(e => {}); triggerScreenFlash(true);
-            } else { currentStreak = 0; incorrectSound.play().catch(e => {}); triggerScreenFlash(false); }
+            } else { state.currentStreak = 0; incorrectSound.play().catch(e => {}); triggerScreenFlash(false); }
             updateStreakCounter();
             optionButtons.forEach((btn, i) => { btn.disabled = true; if (i === correctIndex) btn.classList.add('correct'); if (selectedIndex === i && selectedIndex !== correctIndex) btn.classList.add('incorrect'); });
             hintBtn.disabled = true; nextBtn.style.display = "inline-block"; nextBtn.focus();
         }
+        
         function triggerScreenFlash(isCorrect) { screenFlash.className = 'screen-flash'; void screenFlash.offsetWidth; screenFlash.classList.add(isCorrect ? 'correct' : 'incorrect'); }
+        
         function triggerFireworks() {
             if (document.body.classList.contains('reduce-motion')) return;
             const duration = 2 * 1000;
@@ -793,87 +841,84 @@
                 confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
             }, 250);
         }
+
         function calculateScoreBreakdown() {
             let n = 0, hm = 0;
-            userAnswers.forEach((a, i) => { if(a === quizData[i].answer) n++; });
-            hardModeUserAnswers1.forEach((a,i) => { if(a === HARD_MODE_QUESTIONS_1[i].answer) hm+=2; else if(a !== null) hm--; });
-            hardModeUserAnswers2.forEach((a,i) => { if(a === HARD_MODE_QUESTIONS_2[i].answer) hm+=2; else if(a !== null) hm--; });
+            state.userAnswers.forEach((a, i) => { if(a === state.quizData[i].answer) n++; });
+            state.hardModeUserAnswers1.forEach((a,i) => { if(a === state.HARD_MODE_QUESTIONS_1[i].answer) hm+=2; else if(a !== null) hm--; });
+            state.hardModeUserAnswers2.forEach((a,i) => { if(a === state.HARD_MODE_QUESTIONS_2[i].answer) hm+=2; else if(a !== null) hm--; });
             return { normalScore: n, hardModeScore: hm };
         }
+
         function checkAchievements() {
-            sessionAchievements = new Set();
-            if(gameplayStats.roundCorrect.some(r => r === roundQuestions)) sessionAchievements.add('perfect_round');
-            let maxStreak = 0;
-            let currentProcessingStreak = 0;
-            const allAnswers = userAnswers.map((a,i) => ({a, c: quizData[i].answer}))
-                                .concat(hardModeUserAnswers1.map((a,i) => ({a, c: HARD_MODE_QUESTIONS_1[i].answer})))
-                                .concat(hardModeUserAnswers2.map((a,i) => ({a, c: HARD_MODE_QUESTIONS_2[i].answer})));
+            state.sessionAchievements = new Set();
+            if(state.gameplayStats.roundCorrect.some(r => r === roundQuestions)) state.sessionAchievements.add('perfect_round');
+            let maxStreak = 0; let currentProcessingStreak = 0;
+            const allAnswers = state.userAnswers.map((a,i) => ({a, c: state.quizData[i].answer}))
+                                .concat(state.hardModeUserAnswers1.map((a,i) => ({a, c: state.HARD_MODE_QUESTIONS_1[i].answer})))
+                                .concat(state.hardModeUserAnswers2.map((a,i) => ({a, c: state.HARD_MODE_QUESTIONS_2[i].answer})));
 
             allAnswers.forEach(ans => {
                 if(ans.a === ans.c && ans.a !== null) { currentProcessingStreak++; }
                 else { maxStreak = Math.max(maxStreak, currentProcessingStreak); currentProcessingStreak = 0; }
             });
             maxStreak = Math.max(maxStreak, currentProcessingStreak);
-            if(maxStreak >= 10) sessionAchievements.add('streak_10'); else if(maxStreak >= 5) sessionAchievements.add('streak_5');
+            if(maxStreak >= 10) state.sessionAchievements.add('streak_10'); else if(maxStreak >= 5) state.sessionAchievements.add('streak_5');
 
-            if(gameplayStats.hm_clutch) sessionAchievements.add('clutch_player');
-            const avgTime1 = gameplayStats.hm1_totalTime / MASTER_HARD_MODE_1.length;
-            const avgTime2 = gameplayStats.hm2_totalTime / MASTER_HARD_MODE_2.length;
-            if((avgTime1 > 0 && avgTime1 < 5) || (avgTime2 > 0 && avgTime2 < 5)) sessionAchievements.add('speed_demon');
-            if(gameplayStats.usedHintAndCorrect) sessionAchievements.add('quick_learner');
+            if(state.gameplayStats.hm_clutch) state.sessionAchievements.add('clutch_player');
+            const avgTime1 = state.gameplayStats.hm1_totalTime / MASTER_HARD_MODE_1.length;
+            const avgTime2 = state.gameplayStats.hm2_totalTime / MASTER_HARD_MODE_2.length;
+            if((avgTime1 > 0 && avgTime1 < 5) || (avgTime2 > 0 && avgTime2 < 5)) state.sessionAchievements.add('speed_demon');
+            if(state.gameplayStats.usedHintAndCorrect) state.sessionAchievements.add('quick_learner');
         }
+
         function displayEarnedAchievements() {
-            if (sessionAchievements.size === 0) { achievementsEarned.innerHTML = ''; return; }
+            if (state.sessionAchievements.size === 0) { achievementsEarned.innerHTML = ''; return; }
             let html = '<h3>Achievements Unlocked!</h3><div class="achievement-list">';
-            sessionAchievements.forEach(id => { const ach = ACHIEVEMENTS[id]; html += `<div class="achievement-badge" title="${ach.description}">${ach.emoji} ${ach.name}</div>`; });
+            state.sessionAchievements.forEach(id => { const ach = ACHIEVEMENTS[id]; html += `<div class="achievement-badge" title="${ach.description}">${ach.emoji} ${ach.name}</div>`; });
             html += '</div>'; achievementsEarned.innerHTML = html;
         }
+
         function showResults() {
             prepareFullReview(); checkAchievements(); quizContainer.classList.add('hidden'); resultsContainer.classList.remove('hidden');
             displayLeaderboard(resultsLeaderboardArea);
             const { normalScore, hardModeScore } = calculateScoreBreakdown();
             scoreDisplayArea.innerHTML = `<div class="score-breakdown"><div>Normal Score: <span class="score-value">${normalScore} / 20</span></div><div>Hard Mode Bonus: <span class="score-value ${hardModeScore >= 0 ? 'bonus-positive' : 'bonus-negative'}">${hardModeScore >= 0 ? '+' : ''}${hardModeScore}</span></div><div>Final Score: <span class="score-value final" id="final-score-value">0</span></div></div>`;
             const finalScoreEl = getEl('final-score-value'); let tempScore = 0;
-            const scoreInterval = setInterval(() => { tempScore++; finalScoreEl.textContent = tempScore; if (tempScore >= score) clearInterval(scoreInterval); }, 25);
-            try { let hs = localStorage.getItem('cyberQuizHighScore') || 0; if (score > hs) { hs = score; localStorage.setItem('cyberQuizHighScore', hs); highScoreArea.innerHTML = `🏆 <span class="new-high-score">New Family High Score: ${hs}!</span>`; } else { highScoreArea.innerHTML = `🏆 Family High Score: ${hs}`; } } catch (e) { highScoreArea.innerHTML = ""; }
+            const scoreInterval = setInterval(() => { tempScore++; finalScoreEl.textContent = tempScore; if (tempScore >= state.score) clearInterval(scoreInterval); }, 25);
+            try { let hs = localStorage.getItem('cyberQuizHighScore') || 0; if (state.score > hs) { hs = state.score; localStorage.setItem('cyberQuizHighScore', hs); highScoreArea.innerHTML = `🏆 <span class="new-high-score">New Family High Score: ${hs}!</span>`; } else { highScoreArea.innerHTML = `🏆 Family High Score: ${hs}`; } } catch (e) { highScoreArea.textContent = ""; console.error(e); }
             saveScoreArea.classList.remove('hidden'); saveScoreArea.innerHTML = `<input type="text" id="player-name" placeholder="Enter Parent's Name" maxlength="15"><button id="save-score-btn">Save to Leaderboard</button>`; getEl('save-score-btn').onclick = saveScoreAction;
             const medalDisplay = getEl('medal-display'); medalDisplay.className = 'medal-display';
             let badge, medalIcon;
-            if (score >= 26) { badge = "Gold Cyber Guardian"; medalIcon = "🥇"; medalDisplay.classList.add('gold'); setTimeout(triggerFireworks, 300); }
-            else if (score >= 18) { badge = "Silver Safety Sentinel"; medalIcon = "🥈"; medalDisplay.classList.add('silver'); if (!document.body.classList.contains('reduce-motion')) { setTimeout(() => confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, angle: 270, zIndex: 1001 }), 300); } }
+            if (state.score >= 26) { badge = "Gold Cyber Guardian"; medalIcon = "🥇"; medalDisplay.classList.add('gold'); setTimeout(triggerFireworks, 300); }
+            else if (state.score >= 18) { badge = "Silver Safety Sentinel"; medalIcon = "🥈"; medalDisplay.classList.add('silver'); if (!document.body.classList.contains('reduce-motion')) { setTimeout(() => confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, angle: 270, zIndex: 1001 }), 300); } }
             else { badge = "Bronze Digital Explorer"; medalIcon = "🥉"; medalDisplay.classList.add('bronze'); }
             getEl('final-badge').textContent = badge; medalDisplay.innerHTML = `<span>${medalIcon}</span>`;
             displayEarnedAchievements(); getEl('thank-you-message').innerHTML = `<b>Thanks for playing!</b><br>A project developed by Saksham Negi, with feedback from Aarish Walia, of the Computer Club.<br>Contact: hianime.2810@gmail.com`;
 
             const scrollIndicator = getEl('scroll-indicator');
-            setTimeout(() => {
-                if (resultsContainer.scrollHeight > resultsContainer.clientHeight) {
-                    scrollIndicator.classList.remove('hidden');
-                } else {
-                    scrollIndicator.classList.add('hidden');
-                }
-            }, 100);
+            setTimeout(() => { scrollIndicator.classList.toggle('hidden', resultsContainer.scrollHeight <= resultsContainer.clientHeight); }, 100);
 
-            const hideOnScroll = () => {
-                scrollIndicator.classList.add('hidden');
-                resultsContainer.removeEventListener('scroll', hideOnScroll);
-            };
+            const hideOnScroll = () => { scrollIndicator.classList.add('hidden'); resultsContainer.removeEventListener('scroll', hideOnScroll); };
             resultsContainer.addEventListener('scroll', hideOnScroll);
             scrollIndicator.onclick = () => resultsContainer.scrollBy({ top: 150, behavior: 'smooth' });
         }
+        
         function prepareFullReview() {
-            fullReviewData = [];
-            quizData.forEach((q, i) => { if(userAnswers[i] !== null) fullReviewData.push({ ...q, userAnswer: userAnswers[i], isHardMode: false }); });
-            HARD_MODE_QUESTIONS_1.forEach((q, i) => { if(hardModeUserAnswers1[i] !== null) fullReviewData.push({ ...q, userAnswer: hardModeUserAnswers1[i], isHardMode: true }); });
-            HARD_MODE_QUESTIONS_2.forEach((q, i) => { if(hardModeUserAnswers2[i] !== null) fullReviewData.push({ ...q, userAnswer: hardModeUserAnswers2[i], isHardMode: true }); });
+            state.fullReviewData = [];
+            state.quizData.forEach((q, i) => { if(state.userAnswers[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.userAnswers[i], isHardMode: false }); });
+            state.HARD_MODE_QUESTIONS_1.forEach((q, i) => { if(state.hardModeUserAnswers1[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.hardModeUserAnswers1[i], isHardMode: true }); });
+            state.HARD_MODE_QUESTIONS_2.forEach((q, i) => { if(state.hardModeUserAnswers2[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.hardModeUserAnswers2[i], isHardMode: true }); });
         }
+        
         function renderReviewItem(index) {
-            const item = fullReviewData[index]; const userAnswerIndex = item.userAnswer; const isCorrect = userAnswerIndex === item.answer;
-            const reviewHTML = `<div id="review-header"><h3>Review: Item ${index + 1} / ${fullReviewData.length}</h3><div id="review-nav"><button id="prev-review-btn" ${index === 0 ? 'disabled' : ''}>&larr; Previous</button><button id="next-review-btn" ${index === fullReviewData.length - 1 ? 'disabled' : ''}>Next &rarr;</button></div></div><div id="review-content">${item.isHardMode ? '<div class="review-hard-mode-label">⚡ Hard Mode Question</div>' : ''}<p class="review-question">${item.question}</p>${item.keyTip ? `<div class="key-tip"><strong>Key Tip:</strong> ${item.keyTip}</div>` : ''}<div class="review-answers"><p class="user-answer ${isCorrect ? 'is-correct' : 'is-incorrect'}">Your Answer: ${item.options[userAnswerIndex] ?? 'Timed Out / Not answered'}</p>${!isCorrect ? `<p class="correct-answer">Correct Answer: ${item.options[item.answer]}</p>` : ''}</div><p class="explanation"><strong>Explanation:</strong> ${item.explanation}</p></div>`;
+            const item = state.fullReviewData[index]; const userAnswerIndex = item.userAnswer; const isCorrect = userAnswerIndex === item.answer;
+            const reviewHTML = `<div id="review-header"><h3>Review: Item ${index + 1} / ${state.fullReviewData.length}</h3><div id="review-nav"><button id="prev-review-btn" ${index === 0 ? 'disabled' : ''}>&larr; Previous</button><button id="next-review-btn" ${index === state.fullReviewData.length - 1 ? 'disabled' : ''}>Next &rarr;</button></div></div><div id="review-content">${item.isHardMode ? '<div class="review-hard-mode-label">⚡ Hard Mode Question</div>' : ''}<p class="review-question">${item.question}</p>${item.keyTip ? `<div class="key-tip"><strong>Key Tip:</strong> ${item.keyTip}</div>` : ''}<div class="review-answers"><p class="user-answer ${isCorrect ? 'is-correct' : 'is-incorrect'}">Your Answer: ${item.options[userAnswerIndex] ?? 'Timed Out / Not answered'}</p>${!isCorrect ? `<p class="correct-answer">Correct Answer: ${item.options[item.answer]}</p>` : ''}</div><p class="explanation"><strong>Explanation:</strong> ${item.explanation}</p></div>`;
             showCustomModal({ customHTML: reviewHTML });
-            getEl('prev-review-btn').onclick = () => { if (currentReviewIndex > 0) { currentReviewIndex--; renderReviewItem(currentReviewIndex); } };
-            getEl('next-review-btn').onclick = () => { if (currentReviewIndex < fullReviewData.length - 1) { currentReviewIndex++; renderReviewItem(currentReviewIndex); } };
+            getEl('prev-review-btn').onclick = () => { if (state.currentReviewIndex > 0) { state.currentReviewIndex--; renderReviewItem(state.currentReviewIndex); } };
+            getEl('next-review-btn').onclick = () => { if (state.currentReviewIndex < state.fullReviewData.length - 1) { state.currentReviewIndex++; renderReviewItem(state.currentReviewIndex); } };
         }
+
         function showCustomModal({ title, message, customHTML, input, buttons, allowClose = true }) {
             return new Promise((resolve) => {
                 let modalHTML = '';
@@ -898,51 +943,61 @@
                 if (allowClose) { modalContent.querySelector('.modal-close-btn').onclick = () => closeModal(false); }
             });
         }
+        
         function triggerHardMode(modeNumber) {
-            activeHardModeSet = (modeNumber === 1) ? HARD_MODE_QUESTIONS_1 : HARD_MODE_QUESTIONS_2;
-            const settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
-            const timerDuration = parseInt(settings.hardModeTimer) || 15;
+            state.activeHardModeSet = (modeNumber === 1) ? state.HARD_MODE_QUESTIONS_1 : state.HARD_MODE_QUESTIONS_2;
+            let timerDuration = 15;
+            try {
+                timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
+            } catch (e) {
+                console.error("Could not get hard mode timer setting", e);
+            }
             const hardModeIntroHTML = `<h3>⚡ Special Round: Hard Mode ⚡</h3><p style="text-align:center;">Get ready for a challenge! The rules are different here:</p><ul style="text-align: left; margin: 0 auto; max-width: 300px;"><li><strong>${timerDuration} second timer</strong> per question.</li><li>Correct answers are worth <strong>+2 points</strong>.</li><li>Wrong answers or running out of time will cost you <strong>-1 point</strong>.</li></ul><div class="modal-buttons"><button id="start-hard-mode-btn" class="main-btn">Start Hard Mode</button></div>`;
             showCustomModal({ customHTML: hardModeIntroHTML, allowClose: false });
-            getEl('start-hard-mode-btn').onclick = () => { modalOverlay.classList.remove('show'); hardModeActive = true; hardModeQuestionIndex = 0; quizContainer.classList.add('hard-mode'); loadHardModeQuestion(); };
+            getEl('start-hard-mode-btn').onclick = () => { modalOverlay.classList.remove('show'); state.hardModeActive = true; state.hardModeQuestionIndex = 0; quizContainer.classList.add('hard-mode'); loadHardModeQuestion(); };
         }
+        
         function loadHardModeQuestion() {
-            const q = activeHardModeSet[hardModeQuestionIndex];
-            roundTitleEl.textContent = `Hard Mode: Question ${hardModeQuestionIndex + 1}`;
+            const q = state.activeHardModeSet[state.hardModeQuestionIndex];
+            roundTitleEl.textContent = `Hard Mode: Question ${state.hardModeQuestionIndex + 1}`;
             progressBar.classList.add('hard-mode-progress');
-            progressBar.style.width = `${((hardModeQuestionIndex) / activeHardModeSet.length) * 100}%`;
-            setTimeout(() => { progressBar.style.width = `${((hardModeQuestionIndex + 1) / activeHardModeSet.length) * 100}%`; }, 100);
-            questionEl.textContent = q.question; optionsEl.innerHTML = "";
+            progressBar.style.width = `${((state.hardModeQuestionIndex) / state.activeHardModeSet.length) * 100}%`;
+            setTimeout(() => { progressBar.style.width = `${((state.hardModeQuestionIndex + 1) / state.activeHardModeSet.length) * 100}%`; }, 100);
+            questionEl.textContent = q.question; optionsEl.textContent = "";
             q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
-            nextBtn.style.display = "none"; feedbackArea.innerHTML = ""; feedbackArea.className = "";
-            const settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
-            const timerDuration = parseInt(settings.hardModeTimer) || 15;
+            nextBtn.style.display = "none"; feedbackArea.textContent = ""; feedbackArea.className = "";
+            let timerDuration = 15;
+            try { timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15; } catch(e){}
             timerBarContainer.style.display = 'block'; timerBar.style.transition = 'none'; timerBar.style.width = '100%';
             void timerBar.offsetWidth; timerBar.style.transition = `width ${timerDuration}s linear`; timerBar.style.width = '0%';
-            timeLeft = timerDuration; timerText.textContent = `${timeLeft}s`; clearInterval(questionTimer);
-            questionTimer = setInterval(() => { timeLeft--; timerText.textContent = `${timeLeft}s`; if (timeLeft <= 0) { clearInterval(questionTimer); document.querySelectorAll("#options button").forEach(btn => btn.disabled = true); checkAnswer(-1, true); } }, 1000);
+            state.timeLeft = timerDuration; timerText.textContent = `${state.timeLeft}s`; clearInterval(state.questionTimer);
+            state.questionTimer = setInterval(() => { state.timeLeft--; timerText.textContent = `${state.timeLeft}s`; if (state.timeLeft <= 0) { clearInterval(state.questionTimer); document.querySelectorAll("#options button").forEach(btn => btn.disabled = true); checkAnswer(-1, true); } }, 1000);
         }
+        
         function endHardMode() {
-            clearInterval(questionTimer); quizContainer.classList.remove('hard-mode'); progressBar.classList.remove('hard-mode-progress');
-            progressBar.style.width = `${((currentQuestion) / MASTER_QUIZ_DATA.length) * 100}%`;
-            if (currentQuestion === 10) { showRoundBanner(2, loadQuestion); } else if (currentQuestion === 20) { showResults(); }
+            clearInterval(state.questionTimer); quizContainer.classList.remove('hard-mode'); progressBar.classList.remove('hard-mode-progress');
+            progressBar.style.width = `${((state.currentQuestion) / MASTER_QUIZ_DATA.length) * 100}%`;
+            if (state.currentQuestion === 10) { showRoundBanner(2, loadQuestion); } else if (state.currentQuestion === 20) { showResults(); }
         }
+        
         function displayLeaderboard(targetElement) {
-            try {
-                const leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || [];
-                targetElement.innerHTML = '<h3>🏆 Top 5 Scores</h3>';
-                if (leaderboard.length === 0) { targetElement.innerHTML += '<p>Be the first on the leaderboard!</p>'; return; }
-                const list = document.createElement('ol');
-                leaderboard.slice(0, 5).forEach((entry, index) => {
-                    const item = document.createElement('li');
-                    let icon = '🎖️ '; if (index === 0) icon = '🥇 '; else if (index === 1) icon = '🥈 '; else if (index === 2) icon = '🥉 ';
-                    item.innerHTML = `<span>${icon}${entry.name}</span><span class="score">${entry.score}</span>`;
-                    item.onclick = () => showPlayerAchievements(entry);
-                    list.appendChild(item);
-                });
-                targetElement.appendChild(list);
-            } catch(e) { console.error("Could not display leaderboard:", e); targetElement.innerHTML = '<h3>🏆 Top 5 Scores</h3><p>Leaderboard is currently unavailable.</p>'; }
+            let leaderboard = [];
+            try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e) { console.error("Could not parse leaderboard", e); }
+            targetElement.innerHTML = '<h3>🏆 Top 5 Scores</h3>';
+            if (leaderboard.length === 0) { targetElement.innerHTML += '<p>Be the first on the leaderboard!</p>'; return; }
+            const list = document.createElement('ol');
+            leaderboard.slice(0, 5).forEach((entry, index) => {
+                const item = document.createElement('li');
+                item.setAttribute('role', 'button'); item.setAttribute('tabindex', '0');
+                let icon = '🎖️ '; if (index === 0) icon = '🥇 '; else if (index === 1) icon = '🥈 '; else if (index === 2) icon = '🥉 ';
+                item.innerHTML = `<span>${icon}${entry.name}</span><span class="score">${entry.score}</span>`;
+                item.onclick = () => showPlayerAchievements(entry);
+                item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { showPlayerAchievements(entry); } };
+                list.appendChild(item);
+            });
+            targetElement.appendChild(list);
         }
+
         function showPlayerAchievements(player) {
             let message = '';
             if (player.achievements && player.achievements.length > 0) {
@@ -952,22 +1007,25 @@
             } else { message = "No achievements earned in this game."; }
             showCustomModal({ title: `${player.name}'s Achievements`, message, buttons: [{ text: 'Close', value: 'close', class: 'main-btn' }] });
         }
+
         async function saveScoreAction() {
             const playerNameInput = getEl('player-name'); let playerName = playerNameInput.value.trim();
             if (!playerName) { await showCustomModal({ title: "Input Required", message: "Please enter a name to save your score.", buttons: [{ text: 'OK', value: 'ok', class: 'main-btn' }] }); return; }
             try {
-                let leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || [];
+                let leaderboard = [];
+                try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e){ console.error(e); }
                 if (leaderboard.some(e => e.name.toLowerCase() === playerName.toLowerCase())) { 
                     let c = 2, n = `${playerName} #${c}`; 
                     while (leaderboard.some(e => e.name.toLowerCase() === n.toLowerCase())) { c++; n = `${playerName} #${c}`; } 
                     playerName = n; 
                 }
-                leaderboard.push({ name: playerName, score, achievements: Array.from(sessionAchievements) });
+                leaderboard.push({ name: playerName, score: state.score, achievements: Array.from(state.sessionAchievements) });
                 leaderboard.sort((a, b) => b.score - a.score); localStorage.setItem('cyberQuizLeaderboard', JSON.stringify(leaderboard));
-                saveScoreArea.innerHTML = `<p>Score Saved!</p>`; scoreSaved = true;
+                saveScoreArea.innerHTML = `<p>Score Saved!</p>`; state.scoreSaved = true;
                 displayLeaderboard(resultsLeaderboardArea);
             } catch (e) { console.error("Could not save to leaderboard:", e); saveScoreArea.innerHTML = `<p>Could not save score.</p>`; }
         }
+
         function initStarfield(canvas) {
             if (!canvas) return;
             const ctx = canvas.getContext('2d'); let stars = [], numStars = 400;
@@ -983,6 +1041,7 @@
             };
             tick();
         }
+
         function showRoundBanner(roundIndex, callback) {
             const intro = roundIntroData[roundIndex]; roundIntroBanner.innerHTML = `<h3>${intro.title}</h3><p>${intro.message}</p>`; roundIntroBanner.classList.add('show');
             setTimeout(() => { roundIntroBanner.classList.remove('show'); if (callback) callback(); }, 2500);
@@ -990,103 +1049,59 @@
 
         async function promptForAdminPassword() {
             modalOverlay.classList.remove('show');
-            const password = await showCustomModal({
-                title: "Admin Access Required",
-                message: "Please enter the admin password to proceed.",
-                input: { type: 'password', placeholder: 'Password' },
-                buttons: [
-                    { text: 'Submit', value: 'submit', class: 'secondary-btn' }, 
-                    { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }
-                ]
-            });
-
+            const password = await showCustomModal({ title: "Admin Access Required", message: "Please enter the admin password to proceed.", input: { type: 'password', placeholder: 'Password' }, buttons: [{ text: 'Submit', value: 'submit', class: 'secondary-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }] });
             if (password.button === 'submit') {
                 try {
-                    // This now calls your secure function on the server
-                    const response = await fetch('/.netlify/functions/check-password', {
-                        method: 'POST',
-                        body: JSON.stringify({ attempt: password.value })
-                    });
-
-                    if (response.ok) {
-                        return true; 
-                    }
-                } catch (error) {
-                    console.error('Error contacting server:', error);
-                }
+                    const response = await fetch('/.netlify/functions/check-password', { method: 'POST', body: JSON.stringify({ attempt: password.value }) });
+                    if (response.ok) return true; 
+                } catch (error) { console.error('Error contacting server:', error); }
             }
-            
             showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
             return false;
         }
 
-        startBtn.onclick = () => { initializeQuizData(); welcomeContainer.classList.add('hidden'); quizContainer.classList.remove('hidden'); progressBar.style.width = `0%`; showRoundBanner(0, () => { loadQuestion(); progressBar.style.width = `${((currentQuestion) / quizData.length) * 100}%`; }); };
+        startBtn.onclick = () => { initializeQuizData(); welcomeContainer.classList.add('hidden'); quizContainer.classList.remove('hidden'); progressBar.style.width = `0%`; showRoundBanner(0, () => { loadQuestion(); progressBar.style.width = `${((state.currentQuestion) / state.quizData.length) * 100}%`; }); };
+        
         nextBtn.onclick = () => {
-            if (hardModeActive) { hardModeQuestionIndex++; if (hardModeQuestionIndex < activeHardModeSet.length) { loadHardModeQuestion(); } else { hardModeActive = false; endHardMode(); } return; }
-            currentQuestion++;
-            if (currentQuestion === 10 || currentQuestion === 20) { progressBar.style.width = `${(currentQuestion / MASTER_QUIZ_DATA.length) * 100}%`; triggerHardMode(currentQuestion === 10 ? 1 : 2); }
-            else { if (currentQuestion >= MASTER_QUIZ_DATA.length) { showResults(); return; } progressBar.style.width = `${(currentQuestion / MASTER_QUIZ_DATA.length) * 100}%`; const roundIndex = Math.floor(currentQuestion / roundQuestions); if (currentQuestion % roundQuestions === 0) { showRoundBanner(roundIndex, loadQuestion); } else { loadQuestion(); } }
+            if (state.hardModeActive) { state.hardModeQuestionIndex++; if (state.hardModeQuestionIndex < state.activeHardModeSet.length) { loadHardModeQuestion(); } else { state.hardModeActive = false; endHardMode(); } return; }
+            state.currentQuestion++;
+            if (state.currentQuestion === 10 || state.currentQuestion === 20) { progressBar.style.width = `${(state.currentQuestion / MASTER_QUIZ_DATA.length) * 100}%`; triggerHardMode(state.currentQuestion === 10 ? 1 : 2); }
+            else { if (state.currentQuestion >= MASTER_QUIZ_DATA.length) { showResults(); return; } progressBar.style.width = `${(state.currentQuestion / MASTER_QUIZ_DATA.length) * 100}%`; const roundIndex = Math.floor(state.currentQuestion / roundQuestions); if (state.currentQuestion % roundQuestions === 0) { showRoundBanner(roundIndex, loadQuestion); } else { loadQuestion(); } }
         };
+
         goHomeBtn.onclick = async () => {
-            if (!scoreSaved) {
-                const confirmed = await showCustomModal({
-                    title: "Are you sure?",
-                    message: "You haven't saved your score. It will be lost if you go home.",
-                    buttons: [{ text: "Go Home", value: true, class: 'danger-btn' }, { text: "Cancel", value: false, class: 'secondary-btn' }],
-                    allowClose: false
-                });
-                if (!confirmed) return;
+            if (!state.scoreSaved) {
+                const confirmed = await showCustomModal({ title: "Are you sure?", message: "You haven't saved your score. It will be lost if you go home.", buttons: [{ text: "Go Home", value: true, class: 'danger-btn' }, { text: "Cancel", value: false, class: 'secondary-btn' }], allowClose: false });
+                if (!confirmed.button) return;
             }
-            clearInterval(questionTimer);
-            initializeQuizData();
-            resultsContainer.classList.add('hidden');
-            welcomeContainer.classList.remove('hidden');
-            displayLeaderboard(leaderboardArea);
+            clearInterval(state.questionTimer); initializeQuizData(); resultsContainer.classList.add('hidden'); welcomeContainer.classList.remove('hidden'); displayLeaderboard(leaderboardArea);
         };
-        reviewBtn.onclick = () => { currentReviewIndex = 0; renderReviewItem(currentReviewIndex); };
+
+        reviewBtn.onclick = () => { state.currentReviewIndex = 0; renderReviewItem(state.currentReviewIndex); };
+        
         hintBtn.onclick = () => { 
-            if(hintsRemaining > 0) { 
-                hintsRemaining--; 
-                hintBtn.textContent = `💡 Hint (${hintsRemaining})`; 
-                hintBtn.disabled = true; 
-                const q = hardModeActive ? activeHardModeSet[hardModeQuestionIndex] : quizData[currentQuestion]; 
-                const options = Array.from(document.querySelectorAll('.options button')); 
-                let removed = 0;
-                const toRemove = options.length > 3 ? 2 : 1; 
-                options.forEach((opt, i) => { 
-                    if (i !== q.answer && removed < toRemove) { 
-                        opt.classList.add('hint-removed'); removed++; 
-                    } 
-                }); 
+            if(state.hintsRemaining > 0) { 
+                state.hintsRemaining--; hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`; hintBtn.disabled = true; 
+                const q = state.hardModeActive ? state.activeHardModeSet[state.hardModeQuestionIndex] : state.quizData[state.currentQuestion]; 
+                const options = Array.from(document.querySelectorAll('.options button')); let removed = 0; const toRemove = options.length > 3 ? 2 : 1; 
+                options.forEach((opt, i) => { if (i !== q.answer && removed < toRemove) { opt.classList.add('hint-removed'); removed++; } }); 
             } 
         };
+
         aboutBtn.onclick = () => {
-            const aboutHTML = `<h2>About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h2 style="margin-top: 25px;">Credit</h2><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h2 style="margin-top: 25px;">Version History</h2><div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 15px;"><p>V17: Implemented final, secure server-side password check.</p><p>V16: Fixed Master Reset & Theme/Contrast conflict.</p><p>V15: Renumbered version history.</p><p>V14: Fixed UI bugs for Leaderboard, Review, and Go Home buttons.</p><p>V13: Added password protection to all admin functions.</p><p>V12: Corrected "New Player Reset" function.</p><p>V11: Reordered results page and added scroll indicator.</p><p>V10: Restored missing HTML element causing quiz to fail.</p><p>V9: Implemented Solarized theme and UI consistency fixes.</p><p>V8: Patched glitches and updated admin password.</p><p>V7: Implemented the animated starfield background.</p><p>V6: Added audio feedback for correct and incorrect answers.</p><p>V5: Implemented the 'Review Answers' feature.</p><p>V4: Added the local leaderboard functionality.</p><p>V3: Implemented the medal system.</p><p>V2: Added 'Hard Mode' special rounds.</p><p>V1: Initial quiz development and bug fixes.</p></div>`;
+            const aboutHTML = `<h2>About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h2 style="margin-top: 25px;">Credit</h2><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h2 style="margin-top: 25px;">Version History</h2><div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 15px;"><p>V17.1: Applied fixes for cursor, storage, state, and accessibility.</p><p>V17: Implemented final, secure server-side password check.</p><p>V16: Fixed Master Reset & Theme/Contrast conflict.</p><p>V15: Renumbered version history.</p><p>V14: Fixed UI bugs for Leaderboard, Review, and Go Home buttons.</p><p>V13: Added password protection to all admin functions.</p><p>V12: Corrected "New Player Reset" function.</p><p>V11: Reordered results page and added scroll indicator.</p><p>V10: Restored missing HTML element causing quiz to fail.</p><p>V9: Implemented Solarized theme and UI consistency fixes.</p><p>V8: Patched glitches and updated admin password.</p><p>V7: Implemented the animated starfield background.</p><p>V6: Added audio feedback for correct and incorrect answers.</p><p>V5: Implemented the 'Review Answers' feature.</p><p>V4: Added the local leaderboard functionality.</p><p>V3: Implemented the medal system.</p><p>V2: Added 'Hard Mode' special rounds.</p><p>V1: Initial quiz development and bug fixes.</p></div>`;
             showCustomModal({ customHTML: aboutHTML });
         };
+        
         settingsBtn.onclick = async () => {
             let settings = {}; try { settings = JSON.parse(localStorage.getItem('quizSettings')) || {}; } catch (e) {}
             const settingsHTML = `<h3>⚙️ Settings</h3><div class="settings-row"><label for="theme-select">🎨 Theme</label><select id="theme-select"><option value="dark">Cyber Dark</option><option value="light">Solarized Light</option></select></div><div class="settings-row"><label for="timer-select">⏱️ Hard Mode Timer</label><select id="timer-select"><option value="15">15 Seconds</option><option value="20">20 Seconds</option><option value="30">30 Seconds</option></select></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><div class="settings-row"><label for="glow-cursor-toggle">✨ Glowing Cursor</label><label class="switch"><input type="checkbox" id="glow-cursor-toggle" ${settings.glowCursor ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="bg-toggle">🌌 Background Effects</label><label class="switch"><input type="checkbox" id="bg-toggle" ${!settings.minimalBg ? 'checked' : ''}><span class="slider"></span></label></div><h3>Accessibility</h3><div class="settings-row"><label for="contrast-toggle">⚫ High Contrast</label><label class="switch"><input type="checkbox" id="contrast-toggle" ${settings.highContrast ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="text-toggle">🔍 Large Text</label><label class="switch"><input type="checkbox" id="text-toggle" ${settings.largeText ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="motion-toggle">💨 Reduce Motion</label><label class="switch"><input type="checkbox" id="motion-toggle" ${settings.reduceMotion ? 'checked' : ''}><span class="slider"></span></label></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Admin</h3><div class="settings-row"><label for="manage-leaderboard-btn">Manage Leaderboard</label><button id="manage-leaderboard-btn">Manage</button></div><div class="settings-row"><label for="new-player-btn">Reset Settings</label><button id="new-player-btn">Reset</button></div><div class="settings-row"><label for="master-reset-btn">Master Reset</label><button id="master-reset-btn" class="danger">Reset All Data</button></div>`;
             showCustomModal({ customHTML: settingsHTML });
             
-            const themeSelect = getEl('theme-select');
-            const contrastToggle = getEl('contrast-toggle');
+            const themeSelect = getEl('theme-select'); const contrastToggle = getEl('contrast-toggle');
             themeSelect.value = settings.theme || 'dark';
-
-            themeSelect.onchange = (e) => {
-                updateSetting('theme', e.target.value);
-                if (e.target.value === 'light' && contrastToggle.checked) {
-                    contrastToggle.checked = false;
-                    updateSetting('highContrast', false);
-                }
-            };
-            contrastToggle.onchange = (e) => {
-                updateSetting('highContrast', e.target.checked);
-                if (e.target.checked && themeSelect.value === 'light') {
-                    themeSelect.value = 'dark';
-                    updateSetting('theme', 'dark');
-                }
-            };
+            themeSelect.onchange = (e) => { updateSetting('theme', e.target.value); if (e.target.value === 'light' && contrastToggle.checked) { contrastToggle.checked = false; updateSetting('highContrast', false); } };
+            contrastToggle.onchange = (e) => { updateSetting('highContrast', e.target.checked); if (e.target.checked && themeSelect.value === 'light') { themeSelect.value = 'dark'; updateSetting('theme', 'dark'); } };
             
             getEl('timer-select').value = settings.hardModeTimer || '15';
             getEl('timer-select').onchange = (e) => updateSetting('hardModeTimer', e.target.value);
@@ -1096,79 +1111,36 @@
             getEl('motion-toggle').onchange = (e) => updateSetting('reduceMotion', e.target.checked);
             
             getEl('master-reset-btn').onclick = async () => {
-                const hasAccess = await promptForAdminPassword();
-                if (!hasAccess) return;
-
-                const result = await showCustomModal({
-                    title: "⚠️ Master Reset ⚠️",
-                    message: "This will delete ALL data, including settings, high scores, and the leaderboard. This action cannot be undone. Please type 'RESET' below to confirm.",
-                    input: { placeholder: 'Type RESET here' },
-                    buttons: [{ text: 'Confirm Reset', value: 'confirm', class: 'danger-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }]
-                });
-
+                if (!await promptForAdminPassword()) return;
+                const result = await showCustomModal({ title: "⚠️ Master Reset ⚠️", message: "This will delete ALL data, including settings, high scores, and the leaderboard. This action cannot be undone. Please type 'RESET' below to confirm.", input: { placeholder: 'Type RESET here' }, buttons: [{ text: 'Confirm Reset', value: 'confirm', class: 'danger-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }] });
                 if (result.button === 'confirm' && result.value.toUpperCase() === 'RESET') {
-                    try {
-                        localStorage.removeItem('quizSettings');
-                        localStorage.removeItem('cyberQuizHighScore');
-                        localStorage.removeItem('cyberQuizLeaderboard');
-                        await showCustomModal({ title: "Success", message: "All data has been reset. The page will now reload.", buttons: [{ text: 'Reload', value: 'ok', class: 'main-btn' }] });
-                        window.location.reload();
-                    } catch (e) {
-                        showCustomModal({ title: "Error", message: "An error occurred while trying to reset data.", buttons: [{ text: 'OK', value: 'ok' }] });
-                    }
-                } else if (result.button === 'confirm') {
-                    showCustomModal({ title: "Reset Cancelled", message: "Confirmation text did not match. No data was changed.", buttons: [{ text: 'OK', value: 'ok' }] });
-                }
+                    try { localStorage.clear(); await showCustomModal({ title: "Success", message: "All data has been reset. The page will now reload.", buttons: [{ text: 'Reload', value: 'ok', class: 'main-btn' }] }); window.location.reload(); } catch (e) { showCustomModal({ title: "Error", message: "An error occurred while trying to reset data.", buttons: [{ text: 'OK', value: 'ok' }] }); }
+                } else if (result.button === 'confirm') { showCustomModal({ title: "Reset Cancelled", message: "Confirmation text did not match. No data was changed.", buttons: [{ text: 'OK', value: 'ok' }] }); }
             };
+
             getEl('new-player-btn').onclick = async () => {
-                const hasAccess = await promptForAdminPassword();
-                if (!hasAccess) return;
-
-                const confirmed = await showCustomModal({
-                    title: "Confirm Settings Reset",
-                    message: "This will reset all appearance and accessibility settings to their defaults. The leaderboard and high score will NOT be affected. Are you sure?",
-                    buttons: [{ text: 'Reset Settings', value: true, class: 'secondary-btn' }, { text: 'Cancel', value: false, class: 'secondary-btn' }]
-                });
-                if (confirmed) {
-                    try {
-                        localStorage.removeItem('quizSettings');
-                        window.location.reload();
-                    } catch (e) { console.error("Could not reset settings:", e); }
-                }
+                if (!await promptForAdminPassword()) return;
+                const confirmed = await showCustomModal({ title: "Confirm Settings Reset", message: "This will reset all appearance and accessibility settings to their defaults. The leaderboard and high score will NOT be affected. Are you sure?", buttons: [{ text: 'Reset Settings', value: true, class: 'secondary-btn' }, { text: 'Cancel', value: false, class: 'secondary-btn' }] });
+                if (confirmed.button) { try { localStorage.removeItem('quizSettings'); window.location.reload(); } catch (e) { console.error("Could not reset settings:", e); } }
             };
+
             getEl('manage-leaderboard-btn').onclick = async () => {
-                const hasAccess = await promptForAdminPassword();
-                if (!hasAccess) return;
-
+                if (!await promptForAdminPassword()) return;
                 const renderManager = () => {
-                    const leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || [];
+                    let leaderboard = []; try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e){}
                     let listHTML = '<h2>Manage Leaderboard</h2>';
-                    if (leaderboard.length > 0) {
-                        leaderboard.forEach((entry, index) => {
-                           listHTML += `<div class="settings-row" style="padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span>${index + 1}. ${entry.name} - ${entry.score}</span><button class="danger delete-score-btn" data-index="${index}">Delete</button></div>`;
-                        });
-                    } else {
-                        listHTML += '<p style="text-align: center;">The leaderboard is empty.</p>';
-                    }
-                    
-                    const managerContainer = document.createElement('div');
-                    managerContainer.innerHTML = listHTML;
-                    
-                    const doneBtn = document.createElement('div');
-                    doneBtn.className = 'modal-buttons';
-                    doneBtn.innerHTML = `<button class="main-btn" id="done-managing">Done</button>`;
-                    managerContainer.appendChild(doneBtn);
-
+                    if (leaderboard.length > 0) { leaderboard.forEach((entry, index) => { listHTML += `<div class="settings-row" style="padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span>${index + 1}. ${entry.name} - ${entry.score}</span><button class="danger delete-score-btn" data-index="${index}">Delete</button></div>`; }); } 
+                    else { listHTML += '<p style="text-align: center;">The leaderboard is empty.</p>'; }
+                    const managerContainer = document.createElement('div'); managerContainer.innerHTML = listHTML;
+                    const doneBtn = document.createElement('div'); doneBtn.className = 'modal-buttons'; doneBtn.innerHTML = `<button class="main-btn" id="done-managing">Done</button>`; managerContainer.appendChild(doneBtn);
                     showCustomModal({ customHTML: managerContainer.innerHTML }).then(() => {
                         document.querySelectorAll('.delete-score-btn').forEach(btn => {
                             btn.onclick = (e) => {
-                                const indexToDelete = parseInt(e.target.dataset.index);
-                                let currentLb = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || [];
+                                const indexToDelete = parseInt(e.target.dataset.index); let currentLb = [];
+                                try { currentLb = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(err){}
                                 currentLb.splice(indexToDelete, 1);
                                 localStorage.setItem('cyberQuizLeaderboard', JSON.stringify(currentLb));
-                                modalOverlay.classList.remove('show');
-                                displayLeaderboard(leaderboardArea);
-                                renderManager();
+                                modalOverlay.classList.remove('show'); displayLeaderboard(leaderboardArea); renderManager();
                             };
                         });
                         getEl('done-managing').onclick = () => modalOverlay.classList.remove('show');
@@ -1177,11 +1149,18 @@
                 renderManager();
             };
         };
+
         modalOverlay.onclick = (e) => { if (e.target === modalOverlay && !e.currentTarget.classList.contains('is-locked')) { modalOverlay.classList.remove('show'); } };
-        
         setTimeout(() => { splashScreen.style.opacity = '0'; splashScreen.style.visibility = 'hidden'; }, 2500);
+        
         initStarfield(starfieldCanvas); applySettings(); displayLeaderboard(leaderboardArea);
-        window.addEventListener('mousemove', e => { customCursor.style.left = e.clientX + 'px'; customCursor.style.top = e.clientY + 'px'; });
+        
+        // --- MODIFIED CURSOR EVENT LISTENER ---
+        window.addEventListener('mousemove', e => {
+            // This uses transform for smoother, hardware-accelerated movement
+            customCursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+        });
+        
         copyrightText.textContent = `© 2025 Saksham Negi. All Rights Reserved.`;
         document.addEventListener('keydown', (e) => { if (modalOverlay.classList.contains('show')) return; if(!quizContainer.classList.contains('hidden')) { const n = parseInt(e.key); if (n >= 1 && n <= 4) { const b = document.querySelectorAll('.options button:not(:disabled)'); if(b[n-1]) b[n-1].click(); } else if (e.key === 'Enter' && !nextBtn.classList.contains('hidden')) { nextBtn.click(); } } });
         setTimeout(() => { showCustomModal({ title: "Welcome to the Cyber Security Quiz!", message: "Learn how to keep your family safe online in this short, interactive quiz.<br><br><strong>Tip:</strong> Click the <strong>⚙️ Settings</strong> button on the home screen to customize your experience!", buttons: [{ text: 'Got it!', value: true, class: 'main-btn'}] }); }, 3000);
