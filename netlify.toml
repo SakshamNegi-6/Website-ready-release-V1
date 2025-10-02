@@ -1,4 +1,0 @@
-# This is the code for: netlify.toml
-
-[functions]
-  directory = "functions"
