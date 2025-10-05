@@ -8,37 +8,167 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <style>
-    body.minimal-bg #starfield-canvas { opacity: 0; transition: opacity 0.4s ease; }
-    body.high-contrast { filter: contrast(1.4) brightness(1.2); }
-    body.large-text { font-size: 1.2em; }
-    body.reduce-motion * { transition: none !important; animation: none !important; }
-    body.light-theme { background: #f9f9f9; color: #111; }
-    .settings-row { display:flex;justify-content:space-between;align-items:center;margin:10px 0; }
-    .switch{position:relative;display:inline-block;width:50px;height:28px;}
-    .switch input{opacity:0;width:0;height:0;}
-    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#333;transition:.4s;border-radius:28px;}
-    .slider:before{position:absolute;content:"";height:20px;width:20px;left:4px;bottom:4px;background:#fff;transition:.4s;border-radius:50%;}
-    input:checked+.slider{background:#41e0c3;}
-    input:checked+.slider:before{transform:translateX(22px);}
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #2a2a2a;
+      color: white;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #333;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .main-btn, .secondary-btn {
+      background-color: #41e0c3;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .option-btn {
+      background-color: #555;
+      border: none;
+      color: white;
+      padding: 10px;
+      margin: 5px;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .option-btn:hover {
+      background-color: #666;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .question {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    .feedback {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+
+    #progress-bar {
+      height: 10px;
+      background-color: #41e0c3;
+      width: 0;
+      border-radius: 5px;
+    }
+
+    #streak-counter {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+
+    #modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #modal-content {
+      background-color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 300px;
+      color: white;
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #333;
+      transition: .4s;
+      border-radius: 28px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background: #fff;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: #41e0c3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
   </style>
 </head>
 <body>
-  <div id="background-wrapper"><canvas id="starfield-canvas"></canvas></div>
-  <div class="screen-flash"></div>
-
   <!-- Splash -->
-  <div id="splash-screen"><h1 id="splash-title">Cyber Security Quiz</h1></div>
+  <div id="splash-screen">
+    <h1>Cyber Security Quiz</h1>
+  </div>
 
   <!-- Welcome -->
   <div id="welcome-container" class="container">
-    <div class="header"><div class="logo">CSQ</div><h1>Cyber Security Quiz</h1></div>
+    <h1>Cyber Security Quiz</h1>
     <h2>A Fun Cyber Safety Challenge for Families</h2>
     <button id="start-btn" class="main-btn">Start Quiz</button>
     <div class="welcome-options">
       <button id="settings-btn">⚙️ Settings</button>
       <button id="about-btn">ℹ️ About</button>
     </div>
-    <div id="leaderboard-area" class="leaderboard"></div>
   </div>
 
   <!-- Quiz container -->
@@ -59,9 +189,6 @@
 
   <!-- Results -->
   <div id="results-container" class="container hidden">
-    <div class="medal-display" id="medal-display"></div>
-    <p class="final-badge" id="final-badge"></p>
-    <div id="achievements-earned"></div>
     <div id="score-display-area"></div>
     <div id="high-score-area"></div>
     <div id="results-leaderboard-area" class="leaderboard"></div>
