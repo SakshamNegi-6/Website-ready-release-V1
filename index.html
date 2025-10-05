@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <style>
-    /* Original CSS retained — with minor fixes */
     body.minimal-bg #starfield-canvas { opacity: 0; transition: opacity 0.4s ease; }
     body.high-contrast { filter: contrast(1.4) brightness(1.2); }
     body.large-text { font-size: 1.2em; }
@@ -91,10 +90,102 @@
       <div class="modal-buttons"><button onclick="closeModal()" class="secondary-btn">Close</button></div>
     </div>
   </div>
+<script>
+  let currentQuestionIndex = 0;  // To track the current question
 
-  <script>
-  /* ------------ QUIZ DATA ------------ */
-  const MASTER_QUIZ_DATA = [
+  // Separate hard mode and normal questions
+  const hardModeQuestions = [
+    { question:"What is a brute-force attack?", options:["Guessing every possible password combination","Installing random software","Sending spam emails","Hacking Wi-Fi"], answer:0 },
+    { question:"What does 'SQL Injection' target?", options:["Databases through insecure queries","Antivirus software","CPU usage","RAM capacity"], answer:0 },
+    { question:"A DDoS attack does what?", options:["Overloads a server with traffic","Deletes all files","Installs malware","Steals passwords directly"], answer:0 },
+    { question:"What’s the purpose of hashing a password?", options:["Store it securely as non-reversible data","Encrypt temporarily","Hide it in RAM","Send it faster"], answer:0 },
+    { question:"Which protocol uses port 443?", options:["HTTPS","HTTP","FTP","SMTP"], answer:0 },
+    { question:"What’s an example of multi-factor authentication (MFA)?", options:["Password + Fingerprint","Username + Password","PIN + Password","Password + Birthday"], answer:0 }
+  ];
+
+  const normalQuestions = [
+    { question:"A 'phishing' email is designed to...", options:["Trick you into revealing personal information","Sell you a product","Update your software","Entertain you"], answer:0 },
+    { question:"What does 'HTTPS' at the start of a URL indicate?", options:["The website is popular","It is a high-speed site","The connection is secure and encrypted","The site is for commercial use"], answer:2 },
+    { question:"Which of these is the strongest password?", options:["12345678","password123","R!v3r$1d3#24?","MyDogSparky"], answer:2 },
+    { question:"What is the main risk of using public Wi-Fi?", options:["Slower internet speeds","Hackers can intercept your data","It uses more battery","You see more ads"], answer:1 },
+    { question:"What should you do if you receive an unexpected email attachment?", options:["Open it immediately","Scan it with antivirus before opening","Forward it to friends","Ignore it always"], answer:1 },
+    { question:"Which of the following is an example of two-factor authentication (2FA)?", options:["Entering a password only","Password + OTP sent to phone","Password + birthdate","Password + username"], answer:1 },
+    { question:"A computer virus mainly...", options:["Physically damages the screen","Is malicious software that spreads","Increases computer speed","Improves internet"], answer:1 },
+    { question:"Ransomware is a type of malware that...", options:["Asks for a ransom to restore your files","Deletes temporary files","Makes your computer faster","Updates your system"], answer:0 },
+    { question:"Why should you update your software regularly?", options:["It looks better","To fix bugs and patch security holes","To get new wallpapers","Because it's fun"], answer:1 },
+    { question:"What is a firewall?", options:["A security barrier that monitors traffic","A physical wall against fire","An antivirus program","A file storage system"], answer:0 }
+  ];
+
+  // Randomly select 20 questions (6-10 from hard mode, the rest from normal mode)
+  function selectRandomQuestions() {
+      // Shuffle the hard mode questions and pick 6-10 questions
+      shuffleArray(hardModeQuestions);
+      const selectedHardModeQuestions = hardModeQuestions.slice(0, 6 + Math.floor(Math.random() * 5));  // Randomly pick 6-10 hard mode questions
+
+      // Shuffle the normal questions and pick the remaining questions to make a total of 20
+      shuffleArray(normalQuestions);
+      const selectedNormalQuestions = normalQuestions.slice(0, 20 - selectedHardModeQuestions.length);
+
+      // Combine hard mode and normal questions
+      const selectedQuestions = selectedHardModeQuestions.concat(selectedNormalQuestions);
+      shuffleArray(selectedQuestions);  // Shuffle the final list of 20 questions
+      return selectedQuestions;
+  }
+
+  // Shuffle array function
+  function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]]; // Swap elements
+      }
+  }
+
+  // Start quiz by selecting random questions
+  const selectedQuestions = selectRandomQuestions();
+
+  // Function to start the quiz
+  function startQuiz() {
+      // Hide the welcome screen
+      document.getElementById('welcome-container').style.display = 'none';
+
+      // Show the first question
+      showQuestion(currentQuestionIndex);
+  }
+
+  // Function to display a question based on the current index
+  function showQuestion(index) {
+      const quizContainer = document.createElement('div');
+      quizContainer.id = 'quiz-container';
+      const question = selectedQuestions[index];
+
+      quizContainer.innerHTML = `
+          <h2>${question.question}</h2>
+          ${question.options.map((option, i) => 
+              `<button class="main-btn" onclick="nextQuestion(${i})">${option}</button>`
+          ).join('')}
+      `;
+      document.body.appendChild(quizContainer);
+  }
+
+  // Function to move to the next question
+  function nextQuestion(selectedOptionIndex) {
+      alert("You selected: " + selectedQuestions[currentQuestionIndex].options[selectedOptionIndex]);
+
+      // Remove the current question
+      document.getElementById('quiz-container').remove();
+
+      // Increment to show the next question
+      currentQuestionIndex++;
+
+      // Check if there are more questions
+      if (currentQuestionIndex < selectedQuestions.length) {
+          showQuestion(currentQuestionIndex);  // Show next question
+      } else {
+          alert("Quiz finished!");  // End of quiz
+      }
+  }
+</script>
+const questions = [
     { question:"A 'phishing' email is designed to...", options:["Trick you into revealing personal information","Sell you a product","Update your software","Entertain you"], answer:0 },
     { question:"What does 'HTTPS' at the start of a URL indicate?", options:["The website is popular","It is a high-speed site","The connection is secure and encrypted","The site is for commercial use"], answer:2 },
     { question:"Which of these is the strongest password?", options:["12345678","password123","R!v3r$1d3#24?","MyDogSparky"], answer:2 },
@@ -105,61 +196,7 @@
     { question:"Ransomware is a type of malware that...", options:["Asks for a ransom to restore your files","Deletes temporary files","Makes your computer faster","Updates your system"], answer:0 },
     { question:"Why should you update your software regularly?", options:["It looks better","To fix bugs and patch security holes","To get new wallpapers","Because it's fun"], answer:1 },
     { question:"What is a firewall?", options:["A security barrier that monitors traffic","A physical wall against fire","An antivirus program","A file storage system"], answer:0 },
-    { question:"If a website asks for personal info and looks suspicious, you should...", options:["Give fake info","Check the URL and close it if unsafe","Enter real info quickly","Ignore the feeling"], answer:1 },
-    { question:"Which one is a strong method of protecting your accounts?", options:["Reusing passwords","Using unique strong passwords + 2FA","Sharing passwords with friends","Writing passwords on sticky notes"], answer:1 },
-    { question:"Social engineering is when attackers...", options:["Use code to hack","Trick people into giving info","Design new software","Create social media accounts"], answer:1 },
-    { question:"What is 'shoulder surfing'?", options:["Watching someone type their password","Surfing the internet","Looking at social media","A phishing scam"], answer:0 },
-    { question:"What should you do before clicking a link in an email?", options:["Hover over it to check the URL","Click it quickly","Forward it to others","Ignore it"], answer:0 },
-    { question:"Which of these is NOT safe to share online?", options:["Your hobbies","Your full home address","Your favorite color","Your nickname"], answer:1 },
-    { question:"What can help you remember multiple complex passwords securely?", options:["Using one password for all","Writing them on paper","Using a password manager","Telling a friend"], answer:2 },
-    { question:"What does a VPN do?", options:["Connects you to public Wi-Fi","Protects and encrypts your connection","Makes internet slower","Deletes cookies"], answer:1 },
-    { question:"Which of these devices can be hacked?", options:["Only computers","Only phones","Any device connected to the internet","None of them"], answer:2 },
-    { question:"Why is it bad to reuse passwords?", options:["It’s boring","If one site is breached, all accounts become vulnerable","You forget them faster","It slows your PC"], answer:1 },
-    { question:"A scam message asking for money urgently is an example of…", options:["Ransomware","Social engineering","Spam","Antivirus alert"], answer:1 },
-    { question:"Which of these passwords is safest?", options:["Qwerty123","!Tiger@Sky_52$","Password1","123456"], answer:1 },
-    { question:"What should you do after finishing work on a public computer?", options:["Leave it as is","Log out of all accounts","Install software","Turn off monitor only"], answer:1 },
-    { question:"What’s a good rule for creating passwords?", options:["Use at least 12 characters, mix of letters/numbers/symbols","Use your pet’s name","Use 'password'","Use short easy words"], answer:0 },
-    { question:"Which email sender is most suspicious?", options:["support@bank.com","bank.secure-alert@protonmail.com","noreply@apple.com","help@microsoft.com"], answer:1 },
-    { question:"Which symbol in a web browser indicates encryption?", options:["🔒 padlock","❌ cross","⚠️ triangle","📧 envelope"], answer:0 },
-    { question:"What is malware?", options:["Any malicious software","A type of safe app","A backup system","A browser extension"], answer:0 },
-    { question:"You get a text saying you’ve won a prize. What should you do?", options:["Click link to claim","Ignore or delete it","Reply with address","Forward to everyone"], answer:1 },
-    { question:"Why should you avoid downloading pirated software?", options:["It’s boring","It can contain malware","It uses extra RAM","It saves battery"], answer:1 },
-    { question:"If your computer behaves strangely, first you should…", options:["Restart it","Run antivirus scan","Throw it away","Buy new device"], answer:1 },
-    { question:"Which of these is NOT a good online habit?", options:["Using strong passwords","Checking URLs before clicking","Sharing every detail publicly","Keeping software updated"], answer:2 },
-    { question:"When creating online accounts, always…", options:["Use your birthday","Use strong unique passwords","Use the same password","Skip 2FA"], answer:1 },
-    { question:"An antivirus program helps you…", options:["Hack others","Protect from malicious software","Download games faster","Change themes"], answer:1 },
-    { question:"What’s the best way to protect your smartphone?", options:["Keep it unlocked","Install updates and use screen lock","Share it with friends","Disable antivirus"], answer:1 },
-    { question:"Which one is a form of identity theft?", options:["Someone using your photos","Someone pretending to be you to get info","Losing your charger","Sharing memes"], answer:1 },
-    { question:"What’s the safest place to store your important files?", options:["Only on desktop","In a secure cloud backup","On a random website","Nowhere"], answer:1 },
-    { question:"Why should you back up data?", options:["To recover if data is lost or stolen","To make files heavier","For decoration","No reason"], answer:0 },
-    { question:"A fake website that looks like your bank’s is called…", options:["Mirror site","Phishing site","Safe backup","Redirect link"], answer:1 },
-    { question:"Cookies in websites are used for…", options:["Tracking preferences & sessions","Making websites slower","Showing viruses","Encrypting data"], answer:0 },
-    { question:"Which of these actions increases security?", options:["Using 2FA","Clicking unknown links","Sharing passwords","Using old software"], answer:0 },
-    { question:"When a website asks for credit-card info, you should ensure…", options:["It uses HTTPS","It has lots of images","It loads quickly","It’s colorful"], answer:0 },
-    { question:"You should NEVER share your OTP because…", options:["It changes daily","It grants access to your account","It’s long","It’s only for fun"], answer:1 },
-    { question:"Which of these is phishing?", options:["An email pretending to be your bank","A legitimate site login","Downloading antivirus","Changing your password"], answer:0 },
-    { question:"A good cyber-safety practice at school is…", options:["Sharing passwords","Locking your screen when away","Posting answers publicly","Leaving PC on"], answer:1 },
-    { question:"Strong password example:", options:["Myname123","R@1nB0w$!25X","qwertyuiop","abc123"], answer:1 },
-    { question:"Why should you verify friend requests?", options:["Fake profiles steal info","It gives you XP","It hides your posts","It doesn’t matter"], answer:0 },
-    { question:"If a stranger online asks for your photo, you should…", options:["Send it","Ignore and block them","Ask for theirs first","Share publicly"], answer:1 },
-    { question:"Which of these helps secure social-media accounts?", options:["Using privacy settings","Sharing passwords","Ignoring security alerts","Accepting all requests"], answer:0 },
-    { question:"What should you do if your device is infected?", options:["Ignore it","Run antivirus and disconnect from network","Keep browsing","Delete random files"], answer:1 },
-    { question:"A good habit when downloading apps:", options:["Download only from official stores","From any link","From unknown email","From pop-ups"], answer:0 },
-    { question:"Cyber-bullying should be…", options:["Ignored","Reported to a trusted adult or authority","Encouraged","Revenge-replied"], answer:1 },
-    { question:"What is encryption?", options:["Scrambling data so only authorized can read","Deleting data","Compressing files","Saving faster"], answer:0 },
-    { question:"Which of the following best describes a strong PIN?", options:["1234","0000","9842","8452"], answer:3 },
-    { question:"How often should you change important passwords?", options:["Never","Every few months","Daily","Once a year"], answer:1 },
-    { question:"What’s a digital footprint?", options:["Trail of data you leave online","Your fingerprint","Foot icon","Nothing"], answer:0 },
-    { question:"Why should you be careful on free-Wi-Fi?", options:["Hackers can intercept data","It’s too fast","It blocks videos","It’s private"], answer:0 },
-    { question:"To protect personal info online…", options:["Share only necessary details","Post everything","Share passwords","Tag your location always"], answer:0 },
-    { question:"Which one is safe to click?", options:["Bank alert from unknown link","Official site with HTTPS","Pop-up claiming reward","Unknown attachment"], answer:1 },
-    { question:"Before installing an app, check…", options:["Permissions & reviews","Only its icon","Its color","Nothing"], answer:0 },
-    { question:"What should you do if a friend’s account sends strange links?", options:["Click to see","Ignore & warn them","Share more","Like it"], answer:1 },
-    { question:"Which of these practices improves security?", options:["Lock screen, update OS, use antivirus","Ignore updates","Disable password","Click random ads"], answer:0 },
-    { question:"Why should you check sender’s address in emails?", options:["Scammers mimic real ones","It’s stylish","It’s long","It’s hidden"], answer:0 },
-    { question:"Safe online behavior includes…", options:["Respecting others & protecting privacy","Sharing credentials","Mocking others","Posting private data"], answer:0 }
-  ];
-  const MASTER_HARD_MODE_1 = [
+
     { question:"What is a brute-force attack?", options:["Guessing every possible password combination","Installing random software","Sending spam emails","Hacking Wi-Fi"], answer:0 },
     { question:"What does 'SQL Injection' target?", options:["Databases through insecure queries","Antivirus software","CPU usage","RAM capacity"], answer:0 },
     { question:"A DDoS attack does what?", options:["Overloads a server with traffic","Deletes all files","Installs malware","Steals passwords directly"], answer:0 },
@@ -170,78 +207,41 @@
     { question:"What tool captures network packets?", options:["Wireshark","Visual Studio","VLC","Paint"], answer:0 },
     { question:"Which is the most secure encryption algorithm?", options:["AES-256","MD5","DES","ROT13"], answer:0 },
     { question:"The CIA triad stands for…", options:["Confidentiality, Integrity, Availability","Cyber, Internet, Access","Central Intelligence Agency","Control, Invest, Analyze"], answer:0 },
-    { question:"Which malware logs keystrokes?", options:["Keylogger","Ransomware","Trojan","Spyware"], answer:0 },
-    { question:"A 'zero-day exploit' means…", options:["An attack using an unknown vulnerability","A patch that fixes bugs","Outdated malware","Antivirus signature update"], answer:0 },
-    { question:"Which layer of the OSI model handles encryption?", options:["Presentation","Application","Network","Session"], answer:0 },
-    { question:"The main difference between symmetric and asymmetric encryption is…", options:["Number of keys used","Speed","Hardware used","File size"], answer:0 },
-    { question:"The firewall’s job is to…", options:["Filter traffic based on rules","Increase bandwidth","Store data","Scan RAM"], answer:0 },
-    { question:"Pharming vs Phishing — pharming…", options:["Redirects users to fake sites without emails","Sends fake emails","Targets individuals","Is a type of spyware"], answer:0 },
-    { question:"SSL/TLS certificates primarily ensure…", options:["Secure encrypted communication","Fast downloads","Free internet","User tracking"], answer:0 },
-    { question:"A ‘rootkit’ does what?", options:["Hides malicious activity on a system","Improves boot speed","Backs up data","Runs antivirus"], answer:0 },
-    { question:"Which command shows network interface configuration?", options:["ipconfig / ifconfig","netstat","ping","dir"], answer:0 },
-    { question:"The principle of least privilege means…", options:["Give minimum necessary permissions","Give admin to everyone","Disable firewall","Allow all access"], answer:0 }
-  ];
 
-  const MASTER_HARD_MODE_2 = [
-    { question:"What is XSS (Cross-Site Scripting)?", options:["Injecting malicious scripts into web pages","Crossing network signals","Hacking passwords","Encrypting websites"], answer:0 },
-    { question:"What does 'ARP spoofing' do?", options:["Fakes MAC addresses to redirect traffic","Deletes routing tables","Encrypts files","Changes ports"], answer:0 },
-    { question:"Which attack intercepts data between two parties?", options:["Man-in-the-Middle (MITM)","SQL Injection","Phishing","Spoofing"], answer:0 },
-    { question:"What is the role of a honeypot?", options:["Attract hackers to study their methods","Host real data","Backup files","Encrypt servers"], answer:0 },
-    { question:"Which command tests network connectivity?", options:["ping","tracert","netstat","telnet"], answer:0 },
-    { question:"What is the primary goal of penetration testing?", options:["Find and fix vulnerabilities","Hack systems illegally","Delete logs","Install patches"], answer:0 },
-    { question:"VPN tunnels primarily use which protocol?", options:["IPSec","FTP","SMTP","ICMP"], answer:0 },
-    { question:"A hash collision means…", options:["Two inputs produce same hash","Different hash sizes","Corrupted files","No match found"], answer:0 },
-    { question:"Which port does SMTP use?", options:["25","53","80","110"], answer:0 },
-    { question:"What is the purpose of salting a hash?", options:["Add randomness to protect passwords","Speed up hashing","Compress data","Encrypt files"], answer:0 },
-    { question:"Which is a common wireless security protocol?", options:["WPA2","FTP","SMTP","SNMP"], answer:0 },
-    { question:"The main risk of default credentials is…", options:["Easy unauthorized access","Slow performance","High ping","Large files"], answer:0 },
-    { question:"An IDS does what?", options:["Detects intrusions","Deletes malware","Encrypts files","Manages users"], answer:0 },
-    { question:"What does a digital signature verify?", options:["Authenticity and integrity of data","Speed","Confidentiality","Compression"], answer:0 },
-    { question:"Which is NOT a form of malware?", options:["Checksum","Trojan","Virus","Worm"], answer:0 },
-    { question:"An attack vector is…", options:["A path used to exploit a system","A security tool","A firewall","An algorithm"], answer:0 },
-    { question:"What is the primary purpose of hash functions in security?", options:["Verify integrity","Encrypt files","Compress data","Transfer packets"], answer:0 },
-    { question:"DNS poisoning involves…", options:["Corrupting DNS cache to redirect traffic","Deleting records","Encrypting DNS","Changing MAC"], answer:0 },
-    { question:"The term ‘botnet’ means…", options:["A network of compromised computers","A secured network","LAN","Firewall system"], answer:0 },
-    { question:"Which cyber-attack involves asking users for sensitive data via phone?", options:["Vishing","Phishing","Smishing","Baiting"], answer:0 }
-  ];
-  const ACHIEVEMENTS = [
-    { id: "perfect", title: "Perfectionist", description: "Got every question right!", condition: (score, total) => score === total },
-    { id: "fastThinker", title: "Fast Thinker", description: "Answered all questions quickly!", condition: (score, total, avgTime) => avgTime < 5 },
-    { id: "persistent", title: "Persistent Player", description: "Played multiple times!", condition: (_, __, ___, playCount) => playCount >= 5 },
-    { id: "cyberGuru", title: "Cyber Guru", description: "Achieved top score multiple times!", condition: (_, __, ___, ____, topCount) => topCount >= 3 }
-  ];
+    { question:"What is the full form of 'VPN'?", options:["Virtual Public Network","Virtual Private Network","Visual Processing Network","Volatile Private Network"], answer:1 },
+    { question:"What is the main purpose of a VPN?", options:["To hide your IP address and encrypt your data","To speed up your internet connection","To access blocked content only","To bypass software updates"], answer:0 },
+    { question:"What does the acronym 'SSL' stand for?", options:["Secure Sockets Layer","Socket Security Layer","Simple Secure Layer","Secure Software Layer"], answer:0 },
+    { question:"Which of these is NOT an example of a phishing attempt?", options:["Email asking for login details with a suspicious link","Phone call asking for credit card details","A request from your bank asking for password updates","A request from a website offering a free trial"], answer:3 },
+    { question:"Which of these best describes 'social engineering'?", options:["Tricking people into disclosing confidential information","Using software to track people's activities","Hacking into databases remotely","Using a secure network for communication"], answer:0 },
+    { question:"What is 'two-factor authentication'?", options:["A second password for extra security","A method of using two devices for login","A system where you need both your password and something you know or have (like a phone)","A method of using a password and a fingerprint"], answer:2 },
+    { question:"Which of these is an example of a ransomware attack?", options:["A program that encrypts your files and demands payment for decryption","A virus that slows down your computer","A phishing attempt","A Trojan horse that hides malicious software"], answer:0 },
+    { question:"What is the function of a password manager?", options:["It remembers all your passwords securely","It generates strong passwords automatically","It encrypts your passwords","All of the above"], answer:3 },
+    { question:"Which of these passwords is safest?", options:["12345","password123","R@1nB0w$!25X","qwerty"], answer:2 },
 
-  const roundTitles = ["Basic Cyber Awareness", "Intermediate Security", "Hardcore Hacker Mode"];
-  let userAnswers = [];
-  let timerInterval = null;
-  let questionStartTime = 0;
-
+    { question:"What is the main purpose of HTTPS?", options:["To secure communications between the user and the website","To speed up website load time","To detect vulnerabilities in web servers","To store user information securely"], answer:0 },
+    { question:"What is malware?", options:["Any malicious software","A file compression format","A software update tool","A firewall software"], answer:0 },
+    { question:"What should you do if you lose your phone?", options:["Call your carrier to lock it","Change all your passwords immediately","Try to track it using a GPS app","All of the above"], answer:3 },
+    { question:"What is the main function of a firewall?", options:["To block all internet traffic","To prevent unauthorized access to a network","To delete unnecessary files","To manage network traffic"], answer:1 },
+    { question:"Which of these is a type of malware?", options:["Spyware","Antivirus","Firewall","Encryption software"], answer:0 },
+    { question:"What is a keylogger?", options:["A device that records keystrokes","A type of malware","A tool to improve typing speed","A password manager"], answer:0 },
+    { question:"Why should you be cautious of public Wi-Fi?", options:["It’s often not encrypted, making it vulnerable to attacks","It’s slower than private Wi-Fi","It’s always free","It can improve your device’s security"], answer:0 },
+    { question:"What is the difference between HTTP and HTTPS?", options:["HTTP is slower","HTTPS is a more secure version of HTTP","HTTP is for government sites only","There’s no difference"], answer:1 },
+    { question:"What is a Trojan horse?", options:["A legitimate-looking program that contains malicious software","A security tool used to detect malware","A type of hardware used to protect against hacking","A safe online storage service"], answer:0 },
+    { question:"What does ‘two-factor authentication’ provide?", options:["Two layers of password protection","An extra layer of security using something you know and something you have","Two passwords for each account","Automatic password generation"], answer:1 },
+    { question:"What should you do if you receive a suspicious email?", options:["Open all links and attachments to investigate","Delete it and report it to IT security","Forward it to everyone in your contact list","Save it for later reading"], answer:1 }
+];
+<script>
   const state = {
-    quizData: [],
+    quizData: selectedQuestions,  // Using the selected questions
     currentQuestion: 0,
     score: 0,
-    startTime: 0,
     totalTime: 0,
-    round: 0,
     playCount: parseInt(localStorage.getItem("playCount") || "0"),
     topCount: parseInt(localStorage.getItem("topCount") || "0"),
     highScore: parseInt(localStorage.getItem("cyberQuizHighScore") || "0")
   };
 
-  function startQuiz() {
-    // Pick 20 random normal questions
-    const shuffled = MASTER_QUIZ_DATA.sort(() => Math.random() - 0.5);
-    state.quizData = shuffled.slice(0, 20);
-    state.currentQuestion = 0;
-    state.score = 0;
-    state.totalTime = 0;
-    userAnswers = [];
-    document.getElementById("welcome-container").classList.add("hidden");
-    document.getElementById("quiz-container").classList.remove("hidden");
-    document.getElementById("results-container").classList.add("hidden");
-    loadQuestion();
-  }
-
+  // Function to load a question
   function loadQuestion() {
     const q = state.quizData[state.currentQuestion];
     if (!q) { showResults(); return; }
@@ -260,14 +260,13 @@
 
     document.getElementById("feedback-area").textContent = "";
     document.getElementById("next-btn").style.display = "none";
-    questionStartTime = Date.now();
   }
 
+  // Function to check the selected answer
   function checkAnswer(selectedIndex) {
     const q = state.quizData[state.currentQuestion];
-    const timeTaken = (Date.now() - questionStartTime) / 1000;
+    const timeTaken = (Date.now() - state.startTime) / 1000;
     state.totalTime += timeTaken;
-    userAnswers.push({ question: q.question, selected: selectedIndex, correct: q.answer });
 
     const feedback = document.getElementById("feedback-area");
     const buttons = document.querySelectorAll("#options button");
@@ -281,13 +280,16 @@
     if (selectedIndex === q.answer) {
       feedback.textContent = "✅ Correct!";
       state.score++;
+      playSound(correctSound);  // Play correct sound
     } else {
       feedback.textContent = `❌ Wrong! Correct answer: ${q.options[q.answer]}`;
+      playSound(incorrectSound);  // Play incorrect sound
     }
 
     document.getElementById("next-btn").style.display = "inline-block";
   }
 
+  // Move to the next question or show results if it's the last question
   document.getElementById("next-btn").onclick = function () {
     state.currentQuestion++;
     if (state.currentQuestion < state.quizData.length) {
@@ -297,6 +299,7 @@
     }
   };
 
+  // Show results when the quiz is over
   function showResults() {
     document.getElementById("quiz-container").classList.add("hidden");
     document.getElementById("results-container").classList.remove("hidden");
@@ -308,15 +311,25 @@
       <p>Average time per question: ${avgTime}s</p>
     `;
 
+    playSound(quizFinishSound);  // Play quiz finish sound
+
     state.playCount++;
     localStorage.setItem("playCount", state.playCount);
     updateAchievements(avgTime);
     updateHighScore();
   }
 
+  // Update achievements based on performance
   function updateAchievements(avgTime) {
+    const achievements = [
+      { id: "perfect", title: "Perfectionist", description: "Got every question right!", condition: (score, total) => score === total },
+      { id: "fastThinker", title: "Fast Thinker", description: "Answered all questions quickly!", condition: (score, total, avgTime) => avgTime < 5 },
+      { id: "persistent", title: "Persistent Player", description: "Played multiple times!", condition: (_, __, ___, playCount) => playCount >= 5 },
+      { id: "cyberGuru", title: "Cyber Guru", description: "Achieved top score multiple times!", condition: (_, __, ___, ____, topCount) => topCount >= 3 }
+    ];
+
     const achieved = [];
-    ACHIEVEMENTS.forEach(a => {
+    achievements.forEach(a => {
       if (a.condition(state.score, state.quizData.length, avgTime, state.playCount, state.topCount)) achieved.push(a);
     });
 
@@ -328,6 +341,7 @@
     }
   }
 
+  // Update high score if needed
   function updateHighScore() {
     const prevHigh = parseInt(localStorage.getItem("cyberQuizHighScore") || "0");
     if (state.score > prevHigh) {
@@ -338,28 +352,8 @@
       document.getElementById("high-score-area").innerHTML = `<p>High Score: ${prevHigh}</p>`;
     }
   }
-  /* -------- REVIEW SYSTEM -------- */
-  function showReview() {
-    const reviewDiv = document.createElement("div");
-    reviewDiv.innerHTML = "<h3>Answer Review</h3>";
-    userAnswers.forEach((ans, i) => {
-      const qDiv = document.createElement("div");
-      qDiv.innerHTML = `<strong>Q${i + 1}:</strong> ${ans.question}<br>
-        You answered: <span style="color:${ans.selected === ans.correct ? 'green' : 'red'}">
-        ${state.quizData[i].options[ans.selected] || "No answer"}</span><br>
-        Correct: <span style="color:green">${state.quizData[i].options[ans.correct]}</span>`;
-      reviewDiv.appendChild(qDiv);
-    });
-    document.getElementById("results-container").appendChild(reviewDiv);
-  }
 
-  document.getElementById("review-btn").onclick = showReview;
-  document.getElementById("go-home-btn").onclick = () => {
-    document.getElementById("results-container").classList.add("hidden");
-    document.getElementById("welcome-container").classList.remove("hidden");
-  };
-
-  /* -------- LEADERBOARD -------- */
+  // Save score to leaderboard
   function saveScoreToLeaderboard(name) {
     const lb = JSON.parse(localStorage.getItem("leaderboard") || "[]");
     lb.push({ name, score: state.score, date: new Date().toISOString() });
@@ -369,20 +363,168 @@
     renderLeaderboard();
   }
 
-  function renderLeaderboard() {
-    const lb = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-    const area = document.getElementById("leaderboard-area");
-    if (!lb.length) {
-      area.innerHTML = "<p>No scores yet.</p>";
-      return;
-    }
-    area.innerHTML = "<h3>🏆 Top Players</h3>" +
-      lb.map((e, i) => `<p>${i + 1}. ${e.name} — ${e.score}</p>`).join("");
+  // Render leaderboard on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    renderLeaderboard();
+  });
+</script>
+<script>
+  // Sound effect for correct answer
+  const correctSound = new Audio('https://files.catbox.moe/vxltiz.mp3');
+  // Sound effect for incorrect answer
+  const incorrectSound = new Audio('https://files.catbox.moe/8uswny.mp3');
+  // Sound effect for quiz finish (You can replace this with your own finish sound URL)
+  const quizFinishSound = new Audio('path_to_quiz_finish_sound.mp3');  // Replace with your finish sound URL
+
+  // Function to play a sound
+  function playSound(sound) {
+      sound.play();
   }
 
-  renderLeaderboard();
+  // Function to load a question
+  function loadQuestion() {
+    const q = state.quizData[state.currentQuestion];
+    if (!q) { 
+      showResults();
+      return;
+    }
 
-  /* -------- SETTINGS -------- */
+    document.getElementById("question").textContent = q.question;
+    const optContainer = document.getElementById("options");
+    optContainer.innerHTML = "";
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.className = "option-btn";
+      btn.onclick = () => checkAnswer(i);
+      optContainer.appendChild(btn);
+    });
+
+    document.getElementById("feedback-area").textContent = "";
+    document.getElementById("next-btn").style.display = "none";
+  }
+
+  // Function to check the selected answer
+  function checkAnswer(selectedIndex) {
+    const q = state.quizData[state.currentQuestion];
+    const timeTaken = (Date.now() - state.startTime) / 1000;
+    state.totalTime += timeTaken;
+
+    const feedback = document.getElementById("feedback-area");
+    const buttons = document.querySelectorAll("#options button");
+
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add("correct");
+      if (i === selectedIndex && i !== q.answer) b.classList.add("wrong");
+    });
+
+    if (selectedIndex === q.answer) {
+      feedback.textContent = "✅ Correct!";
+      state.score++;
+      playSound(correctSound);  // Play correct sound
+    } else {
+      feedback.textContent = `❌ Wrong! Correct answer: ${q.options[q.answer]}`;
+      playSound(incorrectSound);  // Play incorrect sound
+    }
+
+    document.getElementById("next-btn").style.display = "inline-block";
+  }
+
+  // Move to the next question or show results if it's the last question
+  document.getElementById("next-btn").onclick = function () {
+    state.currentQuestion++;
+    if (state.currentQuestion < state.quizData.length) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  };
+
+  // Show results when the quiz is over
+  function showResults() {
+    document.getElementById("quiz-container").classList.add("hidden");
+    document.getElementById("results-container").classList.remove("hidden");
+
+    const total = state.quizData.length;
+    const avgTime = total > 0 ? (state.totalTime / total).toFixed(1) : 0;
+    document.getElementById("score-display-area").innerHTML = `
+      <h2>Score: ${state.score} / ${total}</h2>
+      <p>Average time per question: ${avgTime}s</p>
+    `;
+
+    playSound(quizFinishSound);  // Play quiz finish sound
+
+    state.playCount++;
+    localStorage.setItem("playCount", state.playCount);
+    updateAchievements(avgTime);
+    updateHighScore();
+  }
+
+  // Update achievements based on performance
+  function updateAchievements(avgTime) {
+    const achievements = [
+      { id: "perfect", title: "Perfectionist", description: "Got every question right!", condition: (score, total) => score === total },
+      { id: "fastThinker", title: "Fast Thinker", description: "Answered all questions quickly!", condition: (score, total, avgTime) => avgTime < 5 },
+      { id: "persistent", title: "Persistent Player", description: "Played multiple times!", condition: (_, __, ___, playCount) => playCount >= 5 },
+      { id: "cyberGuru", title: "Cyber Guru", description: "Achieved top score multiple times!", condition: (_, __, ___, ____, topCount) => topCount >= 3 }
+    ];
+
+    const achieved = [];
+    achievements.forEach(a => {
+      if (a.condition(state.score, state.quizData.length, avgTime, state.playCount, state.topCount)) achieved.push(a);
+    });
+
+    const area = document.getElementById("achievements-earned");
+    if (achieved.length > 0) {
+      area.innerHTML = "<h3>🎖️ Achievements Unlocked:</h3>" + achieved.map(a => `<p>${a.title} - ${a.description}</p>`).join("");
+    } else {
+      area.innerHTML = "<p>No new achievements this time.</p>";
+    }
+  }
+
+  // Update high score if needed
+  function updateHighScore() {
+    const prevHigh = parseInt(localStorage.getItem("cyberQuizHighScore") || "0");
+    if (state.score > prevHigh) {
+      localStorage.setItem("cyberQuizHighScore", state.score);
+      localStorage.setItem("topCount", state.topCount + 1);
+      document.getElementById("high-score-area").innerHTML = `<p>🥇 New High Score: ${state.score}</p>`;
+    } else {
+      document.getElementById("high-score-area").innerHTML = `<p>High Score: ${prevHigh}</p>`;
+    }
+  }
+
+  // Save score to leaderboard
+  function saveScoreToLeaderboard(name) {
+    const lb = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+    lb.push({ name, score: state.score, date: new Date().toISOString() });
+    lb.sort((a, b) => b.score - a.score);
+    if (lb.length > 10) lb.length = 10;
+    localStorage.setItem("leaderboard", JSON.stringify(lb));
+    renderLeaderboard();
+  }
+
+  // Render leaderboard on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    renderLeaderboard();
+  });
+</script>
+<script>
+  // Sound effect for correct answer
+  const correctSound = new Audio('https://files.catbox.moe/vxltiz.mp3');
+  // Sound effect for incorrect answer
+  const incorrectSound = new Audio('https://files.catbox.moe/8uswny.mp3');
+  // Sound effect for quiz finish
+  const quizFinishSound = new Audio('path_to_quiz_finish_sound.mp3');  // Replace with your finish sound URL
+
+  // Function to play a sound
+  function playSound(sound) {
+      sound.play();
+  }
+
+  // Function to apply settings
   const settings = {
     background: localStorage.getItem("setting_background") === "true",
     contrast: localStorage.getItem("setting_contrast") === "true",
@@ -417,7 +559,7 @@
   document.getElementById("motion-toggle").onchange = e => updateSetting("reduceMotion", e.target.checked);
   document.getElementById("theme-select").onchange = e => updateSetting("theme", e.target.value);
 
-  /* -------- ADMIN RESET (with /api/check-password.js) -------- */
+  // Admin reset functionality with /api/check-password.js
   async function resetData(type) {
     const pass = prompt("Enter admin password:");
     if (!pass) return alert("Cancelled.");
@@ -448,7 +590,7 @@
     }
   }
 
-  /* -------- MODAL CONTROL -------- */
+  // Settings Modal Control
   function openModal() {
     document.getElementById("modal-overlay").style.display = "block";
     applySettings();
@@ -464,7 +606,7 @@
     applySettings();
   });
 
-  /* -------- STARFIELD BACKGROUND -------- */
+  // Starfield Background Animation
   const canvas = document.getElementById("starfield-canvas");
   const ctx = canvas.getContext("2d");
   let stars = [];
@@ -511,6 +653,10 @@
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
   animateStars();
-  </script>
-</body>
+</script>
+  <!-- Closing the modal and body content -->
+  </div> <!-- End of #modal-content -->
+  </div> <!-- End of #modal-overlay -->
+
+  </body>
 </html>
