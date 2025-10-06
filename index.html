@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyber Security Quiz</title>
   <meta name="description" content="An interactive and educational Cyber Security Quiz." />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
@@ -532,7 +533,13 @@
         cursor: pointer;
         transition: all 0.3s;
     }
-    .settings-row button:hover {
+     .settings-row button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        border-color: var(--text-secondary);
+        color: var(--text-secondary);
+    }
+    .settings-row button:hover:not(:disabled) {
         background: var(--accent-alt);
         color: var(--primary-dark);
     }
@@ -540,7 +547,7 @@
         border-color: var(--glow-incorrect);
         color: var(--glow-incorrect);
     }
-    .settings-row button.danger:hover {
+    .settings-row button.danger:hover:not(:disabled) {
         background: var(--glow-incorrect);
         color: var(--primary-dark);
     }
@@ -554,6 +561,10 @@
     .switch { position: relative; display: inline-block;
       width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0;
+    }
+    .switch input:disabled + .slider {
+        cursor: not-allowed;
+        background-color: #555;
     }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333;
       transition: .4s; border-radius: 28px; }
@@ -747,12 +758,11 @@
 
   <script>
     /*
-        Cyber Security Quiz - v17.8 (Oct 2, 2025) - Patched by Gemini
-        - Merged Theme/Contrast settings to fix UI conflicts.
-        - Corrected page load sequence to apply settings before initializing visuals.
-        - Fixed score loss bug where "Go Home" warning was skipped on subsequent plays.
-        - Added accessibility focus trap to all modals.
-        - Ensured medal animations respect the "Reduce Motion" setting.
+        Cyber Security Quiz - v18.1 (Oct 6, 2025) - Patched by Gemini
+        - Added favicon link to prevent console errors.
+        - Fixed settings bug where toggles were incorrectly linked.
+        - Implemented feature: Reduce Motion now disables Background Effects toggle.
+        - Changed admin password as per user request.
     */
     const MASTER_QUIZ_DATA = [
         { question: "A 'phishing' email is designed to...", options: ["Trick you into revealing personal information", "Sell you a product", "Update your software", "Entertain you"], answer: 0, difficulty: 'easy', keyTip: "Be wary of emails asking for personal info.", explanation: "Phishing scams use deceptive emails to trick you into giving away sensitive info like <strong>passwords or credit card numbers</strong>. They often create a sense of urgency." },
@@ -805,7 +815,6 @@
     ];
     const roundQuestions = 5;
 
-    // Centralized state object for better management
     const state = {
         quizData: [],
         HARD_MODE_QUESTIONS_1: [],
@@ -858,7 +867,7 @@
             state.currentQuestion = 0;
             state.hardModeActive = false;
             state.hardModeQuestionIndex = 0;
-            state.scoreSaved = false; // BUG FIX: Reset scoreSaved flag for new games
+            state.scoreSaved = false; 
             state.currentStreak = 0;
             state.hintsRemaining = 2;
             state.sessionAchievements = new Set();
@@ -913,7 +922,7 @@
                 roundTitleEl.classList.add('animate-in');
             }
             questionEl.textContent = q.question;
-            optionsEl.innerHTML = ""; // Safer way to clear
+            optionsEl.innerHTML = ""; 
             q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
             hintBtn.disabled = state.hintsRemaining <= 0;
             hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`;
@@ -1152,19 +1161,18 @@
                 const inputField = getEl('modal-input-field');
                 if(inputField) inputField.focus();
 
-                // ACCESSIBILITY: Focus Trap Logic
                 const focusableElements = modalContent.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
                 const firstElement = focusableElements[0];
                 const lastElement = focusableElements[focusableElements.length - 1];
 
                 const trapFocus = (e) => {
                     if (e.key !== 'Tab') return;
-                    if (e.shiftKey) { // Shift + Tab
+                    if (e.shiftKey) { 
                         if (document.activeElement === firstElement) {
                             lastElement.focus();
                             e.preventDefault();
                         }
-                    } else { // Tab
+                    } else { 
                         if (document.activeElement === lastElement) {
                             firstElement.focus();
                             e.preventDefault();
@@ -1217,7 +1225,7 @@
             timerBarContainer.style.display = 'block';
             timerBar.style.transition = 'none';
             timerBar.style.width = '100%';
-            void timerBar.offsetWidth; // Trigger reflow
+            void timerBar.offsetWidth; 
             timerBar.style.transition = `width ${timerDuration}s linear`;
             timerBar.style.width = '0%';
             
@@ -1332,8 +1340,7 @@
         }
 
         async function promptForAdminPassword() {
-            // **FIXED**: Replaced non-functional server check with a client-side check.
-            const ADMIN_PASSWORD = 'admin2025'; // The password for admin functions.
+            const ADMIN_PASSWORD = 'hianime.2810@gmail.com'; 
             const password = await showCustomModal({
                 title: "Admin Access Required",
                 message: "Please enter the admin password to proceed.",
@@ -1346,14 +1353,13 @@
 
             if (password.button === 'submit') {
                 if (password.value === ADMIN_PASSWORD) {
-                    return true; // Correct password
+                    return true;
                 } else {
-                    // Incorrect password
                     showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
                     return false;
                 }
             }
-            return false; // User cancelled
+            return false;
         }
 
         startBtn.onclick = () => {
@@ -1400,7 +1406,7 @@
                     buttons: [{ text: "Go Home", value: 'confirm', class: 'danger-btn' }, { text: "Cancel", value: 'cancel', class: 'secondary-btn' }],
                     allowClose: false
                 });
-                if (confirmed.button !== 'confirm') return;
+                if (confirmed !== 'confirm') return;
             }
             clearInterval(state.questionTimer);
             initializeQuizData();
@@ -1433,22 +1439,30 @@
             let settings = {};
             try { settings = JSON.parse(localStorage.getItem('quizSettings')) || {}; } catch (e) {}
             
-            // BUG FIX: Merged Theme and High Contrast into one setting
             const settingsHTML = `<h3>⚙️ Settings</h3><div class="settings-row"><label for="theme-select">🎨 Theme</label><select id="theme-select"><option value="dark">Cyber Dark</option><option value="light">Solarized Light</option><option value="contrast">High Contrast</option></select></div><div class="settings-row"><label for="timer-select">⏱️ Hard Mode Timer</label><select id="timer-select"><option value="15">15 Seconds</option><option value="20">20 Seconds</option><option value="30">30 Seconds</option></select></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><div class="settings-row"><label for="bg-toggle">🌌 Background Effects</label><label class="switch"><input type="checkbox" id="bg-toggle" ${!settings.minimalBg ? 'checked' : ''}><span class="slider"></span></label></div><h3>Accessibility</h3><div class="settings-row"><label for="text-toggle">🔍 Large Text</label><label class="switch"><input type="checkbox" id="text-toggle" ${settings.largeText ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="motion-toggle">💨 Reduce Motion</label><label class="switch"><input type="checkbox" id="motion-toggle" ${settings.reduceMotion ? 'checked' : ''}><span class="slider"></span></label></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Admin</h3><div class="settings-row"><label for="manage-leaderboard-btn">Manage Leaderboard</label><button id="manage-leaderboard-btn">Manage</button></div><div class="settings-row"><label for="new-player-btn">Reset Settings</label><button id="new-player-btn">Reset</button></div><div class="settings-row"><label for="master-reset-btn">Master Reset</label><button id="master-reset-btn" class="danger">Reset All Data</button></div>`;
             showCustomModal({ customHTML: settingsHTML });
             
-            // BUG FIX: New unified logic for the single theme dropdown
             const themeSelect = getEl('theme-select');
             if (settings.highContrast) {
                 themeSelect.value = 'contrast';
             } else {
                 themeSelect.value = settings.theme || 'dark';
             }
+            
+            // --- SETTINGS LOGIC FIX & NEW FEATURE ---
+            const bgToggle = getEl('bg-toggle');
+            const motionToggle = getEl('motion-toggle');
+
+            // Initial state: Disable background toggle if reduce motion is on
+            if (settings.reduceMotion) {
+                bgToggle.disabled = true;
+            }
+
             themeSelect.onchange = (e) => {
                 const selection = e.target.value;
                 if (selection === 'contrast') {
                     updateSetting('highContrast', true);
-                    updateSetting('theme', 'dark'); // Base high contrast on dark theme
+                    updateSetting('theme', 'dark'); 
                 } else {
                     updateSetting('highContrast', false);
                     updateSetting('theme', selection);
@@ -1457,9 +1471,23 @@
             
             getEl('timer-select').value = settings.hardModeTimer || '15';
             getEl('timer-select').onchange = (e) => updateSetting('hardModeTimer', e.target.value);
-            getEl('bg-toggle').onchange = (e) => updateSetting('minimalBg', !e.target.checked);
+            
+            bgToggle.onchange = (e) => updateSetting('minimalBg', !e.target.checked);
             getEl('text-toggle').onchange = (e) => updateSetting('largeText', e.target.checked);
-            getEl('motion-toggle').onchange = (e) => updateSetting('reduceMotion', e.target.checked);
+
+            motionToggle.onchange = (e) => {
+                const reduceMotion = e.target.checked;
+                updateSetting('reduceMotion', reduceMotion);
+
+                if (reduceMotion) {
+                    updateSetting('minimalBg', true); // Turn off background effects
+                    bgToggle.checked = false; // Uncheck the box visually
+                    bgToggle.disabled = true; // Disable the toggle
+                } else {
+                    bgToggle.disabled = false; // Re-enable the toggle
+                }
+            };
+            // --- END OF SETTINGS FIX ---
 
             getEl('master-reset-btn').onclick = async () => {
                 if (!await promptForAdminPassword()) return;
@@ -1520,7 +1548,6 @@
         
         setTimeout(() => { splashScreen.style.opacity = '0'; splashScreen.style.visibility = 'hidden'; }, 2500);
         
-        // BUG FIX: Swapped order to apply settings BEFORE initializing starfield
         applySettings();
         initStarfield(starfieldCanvas);
         displayLeaderboard(leaderboardArea);
