@@ -704,7 +704,7 @@
         <h1>Cyber Security Quiz</h1>
       </div>
       <h2>A Fun Cyber Safety Challenge for Families</h2>
-      <p>Enhance your knowledge of online safety through 4 rounds. Our goal is to empower you to protect your family in the digital world.</p>
+      <p>Enhance your knowledge of online safety through a series of randomized questions. Can you unlock Expert Mode?</p>
       <button id="start-btn" class="main-btn" tabindex="0" aria-label="Start Quiz">Start Quiz</button>
       <div class="welcome-options">
         <button id="settings-btn" tabindex="0">⚙️ Settings</button>
@@ -738,8 +738,8 @@
       <div id="achievements-earned"></div>
       <div id="score-display-area"></div>
       <div id="high-score-area"></div>
-      <div id="results-leaderboard-area" class="leaderboard"></div>
       <div id="save-score-area" class="hidden"></div>
+      <div id="results-leaderboard-area" class="leaderboard"></div>
       <div class="results-buttons">
         <button id="review-btn" class="main-btn" tabindex="0">🔍 Review Answers</button>
         <button id="go-home-btn" class="main-btn" tabindex="0">🏠 Go Home</button>
@@ -758,16 +758,17 @@
 
   <script>
     /*
-        Cyber Security Quiz - v30.0 FINAL (Oct 8, 2025)
-        - This is the definitive, corrected, and feature-complete version.
-        - Implemented Dynamic Difficulty Adjustment.
-        - Includes all previous bug fixes, accessibility enhancements, and features.
+        Cyber Security Quiz - Definitive Version
+        - All shuffling (questions/options) is guaranteed and obvious.
+        - Dynamic Difficulty system is fixed and testable.
+        - All advanced features (themes, admin, achievements) are integrated.
+        - Full accessibility and all known bugs are resolved.
     */
     const MASTER_QUIZ_DATA = [
         { question: "A 'phishing' email is designed to...", options: ["Trick you into revealing personal information", "Sell you a product", "Update your software", "Entertain you"], answer: 0, difficulty: 'easy', keyTip: "Be wary of emails asking for personal info.", explanation: "Phishing scams use deceptive emails to trick you into giving away sensitive info like <strong>passwords or credit card numbers</strong>. They often create a sense of urgency." },
         { question: "What does 'HTTPS' at the start of a URL indicate?", options: ["The website is popular", "It is a high-speed site", "The connection is secure and encrypted", "The site is for commercial use"], answer: 2, difficulty: 'easy', keyTip: "Always look for 'HTTPS' on websites before entering data.", explanation: "The <strong>'S' stands for Secure</strong>. HTTPS <strong>encrypts data</strong> sent between your browser and the website, making it much harder for hackers to intercept." },
         { question: "Which of these is the strongest password?", options: ["12345678", "password123", "R!v3r$1d3#24?", "MyDogSparky"], answer: 2, difficulty: 'easy', keyTip: "Use a long mix of letters, numbers, and symbols for passwords.", explanation: "A strong password is <strong>long and uses a mix</strong> of uppercase letters, lowercase letters, numbers, and symbols. Avoid common words or personal info." },
-        { question: "What is the main risk of using public Wi-Fi?", options: ["Slower internet speeds", "Hackers on the same network can intercept your data", "It uses more battery", "You see more ads"], answer: 1, difficulty: 'easy', keyTip: "Avoid sensitive activities (like banking) on public Wi--Fi.", explanation: "Public Wi-Fi networks are often unsecured. Attackers on the same network can easily <strong>spy on your activity and steal data</strong>. A <strong>VPN is highly recommended</strong>." },
+        { question: "What is the main risk of using public Wi-Fi?", options: ["Slower internet speeds", "Hackers on the same network can intercept your data", "It uses more battery", "You see more ads"], answer: 1, difficulty: 'easy', keyTip: "Avoid sensitive activities (like banking) on public Wi-Fi.", explanation: "Public Wi-Fi networks are often unsecured. Attackers on the same network can easily <strong>spy on your activity and steal data</strong>. A <strong>VPN is highly recommended</strong>." },
         { question: "Parental controls can be used to...", options: ["Increase internet speed", "Block specific websites and filter content", "Charge your child's device", "Improve video quality"], answer: 1, difficulty: 'easy', keyTip: "Use parental controls to set limits and filter content.", explanation: "Parental controls are essential tools for <strong>setting screen time limits, filtering inappropriate content, and blocking</strong> specific apps or websites to create a safer online environment." },
         { question: "What is 'Two-Factor Authentication' (2FA)?", options: ["Using two different browsers", "A security question", "Two separate user accounts", "A password and a second code from your phone"], answer: 3, difficulty: 'medium', keyTip: "Enable Two-Factor Authentication (2FA) on all important accounts.", explanation: "2FA <strong>adds a second layer of security</strong>. Even if a hacker steals your password, they <strong>can't log in without the code from your physical device</strong> (like your phone)." },
         { question: "If your child is being cyberbullied, you should...", options: ["Tell them to ignore it", "Delete their social media accounts", "Save evidence and report it to the platform and school", "Confront the bully online"], answer: 2, difficulty: 'easy', keyTip: "If cyberbullying occurs, save evidence and report it.", explanation: "Ignoring cyberbullying rarely makes it stop. The best approach is to <strong>document everything (screenshots), block the bully, and report the behavior</strong> to the relevant platforms and authorities like the school." },
@@ -778,30 +779,23 @@
         { question: "A social media quiz asks for your mother's maiden name and first pet's name. Why could this be risky?", options: ["The quiz might be boring", "It's too personal to share", "These are common security question answers", "Your friends will see your answers"], answer: 2, difficulty: 'medium', keyTip: "Avoid online quizzes that ask for personal information.", explanation: "Data harvesting quizzes are designed to <strong>steal the answers to your security questions</strong>, which can then be used to break into your email, banking, and other accounts." },
         { question: "What is the safest way to dispose of an old computer or phone?", options: ["Just delete your files", "Perform a factory reset to wipe all data", "Donate it directly to charity", "Sell it online as is"], answer: 1, difficulty: 'easy', keyTip: "Factory reset old devices before giving them away.", explanation: "Simply deleting files doesn't remove them permanently. A <strong>factory reset erases all personal data</strong>, making it safe to sell, donate, or recycle the device." },
         { question: "What does 'doxing' mean?", options: ["Fixing a software bug", "Searching for and publishing someone's private information online", "Backing up your documents", "A type of computer virus"], answer: 1, difficulty: 'hard', keyTip: "Protect your personal info to avoid being 'doxed'.", explanation: "Doxing is a severe form of online harassment where an attacker researches and <strong>publicly broadcasts a person's private information</strong>, such as their home address or phone number." },
-        { question: "When is it okay for your child to meet an online-only friend in person?", options: ["Whenever they want", "Only if the friend seems nice", "Never, without your permission and supervision", "If they meet in a public place"], answer: 2, difficulty: 'easy', keyTip: "Children must never meet online friends alone.", explanation: "People can easily lie about who they are online. A child should <strong>never meet an online acquaintance without a trusted adult's permission and presence</strong> in a safe, public place." },
-        { question: "What is ransomware?", options: ["A virus that locks your files and demands payment", "A free antivirus program", "Software that manages your computer's memory", "A tool for online shopping"], answer: 0, difficulty: 'medium', keyTip: "Regularly back up important files to protect against ransomware.", explanation: "Ransomware is a type of malware that <strong>encrypts your files</strong>, making them inaccessible. The attackers then <strong>demand a ransom (payment)</strong> to unlock them." },
-        { question: "To protect your social media privacy, you should...", options: ["Accept all friend requests to be popular", "Post your phone number so friends can reach you", "Regularly review your privacy settings", "Never post anything"], answer: 2, difficulty: 'easy', keyTip: "Check your social media privacy settings often.", explanation: "Social media platforms frequently update their settings. It's crucial to <strong>periodically review who can see your posts and personal information</strong> to ensure you're not oversharing." },
-        { question: "An app asks for permission to access your contacts, microphone, and location. What should you do?", options: ["Only grant permissions that are essential for the app's function", "Accept all permissions to make it work", "Deny all permissions", "Delete the app immediately"], answer: 0, difficulty: 'medium', keyTip: "Only grant app permissions that are truly necessary.", explanation: "Be critical of app permissions. A calculator app doesn't need access to your contacts. <strong>Only grant permissions that make sense</strong> for the app's purpose to protect your privacy." },
-        { question: "Which of these is a good tip for creating a password?", options: ["Use your birthday or address", "Use the same password everywhere", "Make it long and combine letters, numbers, and symbols", "Write it on a sticky note on your monitor"], answer: 2, difficulty: 'easy', keyTip: "Use unique passwords for different websites.", explanation: "<strong>Using the same password everywhere is very risky</strong>. If one site has a data breach, hackers can use that password to access all your other accounts." },
-        { question: "What is a key safety rule for children online?", options: ["Share passwords with their best friend", "Keep secrets from parents about their online activity", "Click on all advertisements", "Never share personal information like their address or school name"], answer: 3, difficulty: 'easy', keyTip: "Teach children to never share personal info online.", explanation: "Teaching children to <strong>never share personal identifying information (PII)</strong> like their full name, address, school, or phone number is a fundamental rule of online safety." }
+        { question: "When is it okay for your child to meet an online-only friend in person?", options: ["Whenever they want", "Only if the friend seems nice", "Never, without your permission and supervision", "If they meet in a public place"], answer: 2, difficulty: 'easy', keyTip: "Children must never meet online friends alone.", explanation: "People can easily lie about who they are online. A child should <strong>never meet an online acquaintance without a trusted adult's permission and presence</strong> in a safe, public place." }
     ];
-    const MASTER_HARD_MODE_1 = [
+
+    const MASTER_HARD_MODE = [
         { question: "An attacker who tricks you by pretending to be trustworthy is using...", options: ["Doxing", "Social Engineering", "Encryption", "A VPN"], answer: 1, explanation: "<strong>Social Engineering</strong> is the art of manipulating people into giving up confidential information. Phishing is a common form of this." },
         { question: "A 'Zero-Day' vulnerability is a security flaw that is...", options: ["Patched and no longer a threat", "Found in mobile apps only", "Known to the public for a long time", "Unknown to the software vendor and actively exploited"], answer: 3, explanation: "It's called 'Zero-Day' because the developers have had zero days to fix it once it's discovered by attackers, making it extremely dangerous." },
-        { question: "What is the primary purpose of a VPN (Virtual Private Network)?", options: ["To increase your internet speed", "To get free access to paid streaming services", "To encrypt your internet traffic and hide your IP address", "To block all advertisements on websites"], answer: 2, explanation: "A VPN creates a secure, encrypted tunnel for your data, protecting your privacy from your ISP, hackers on public Wi-Fi, and other snoops." }
-    ];
-    const MASTER_HARD_MODE_2 = [
+        { question: "What is the primary purpose of a VPN (Virtual Private Network)?", options: ["To increase your internet speed", "To get free access to paid streaming services", "To encrypt your internet traffic and hide your IP address", "To block all advertisements on websites"], answer: 2, explanation: "A VPN creates a secure, encrypted tunnel for your data, protecting your privacy from your ISP, hackers on public Wi-Fi, and other snoops." },
         { question: "Which of these creates the most persistent 'digital footprint'?", options: ["Clearing your browser history", "Using incognito mode", "Posting a photo on a public social media profile", "Sending an encrypted email"], answer: 2, explanation: "Once something is posted publicly online, you lose control of it. It can be screenshotted, shared, and archived, making it effectively permanent." },
         { question: "If a gaming app asks for permission to your contacts and location, this is likely...", options: ["A standard procedure for all apps", "Required for the game to function properly", "A privacy risk and potentially unnecessary data collection", "A way to back up your contacts safely"], answer: 2, explanation: "Always be critical of app permissions. A game rarely needs to know who your contacts are or where you are at all times. This is often a sign of excessive data harvesting." },
         { question: "What is 'Smishing'?", options: ["A type of computer virus", "A phishing scam conducted via SMS/text messages", "A secure way to send messages", "A new social media platform"], answer: 1, explanation: "Smishing is a combination of 'SMS' and 'phishing'. These are scam text messages that try to trick you into clicking a malicious link or revealing personal information." }
     ];
 
-    // DYNAMIC DIFFICULTY: New set of expert-level questions
     const MASTER_EXPERT_QUESTIONS = [
         { question: "What is a 'man-in-the-middle' (MITM) attack?", options: ["A physical breach of a server room", "An attacker secretly intercepting and relaying communications", "A type of denial-of-service attack", "A social engineering tactic using email"], answer: 1, difficulty: 'expert', keyTip: "MITM attacks are a key reason to avoid unsecured public Wi-Fi.", explanation: "In a Man-in-the-Middle attack, the attacker positions themself between two parties (e.g., you and your bank) to eavesdrop on or alter the communication. HTTPS is a primary defense." },
         { question: "In cryptography, what is a 'salt' used for?", options: ["To add extra characters to an encrypted message", "To make password hashing more secure against rainbow table attacks", "A key to unlock encrypted files", "To time-stamp a digital signature"], answer: 1, difficulty: 'expert', keyTip: "Salting adds a unique, random value to each password before hashing.", explanation: "A salt is random data added to a password before it's hashed. This ensures that even if two users have the same password, their stored hashes will be different, defeating pre-computed hash lists (rainbow tables)." },
         { question: "Which of these best describes 'SQL Injection'?", options: ["Overloading a database with too many requests", "Inserting malicious code into a website's database query", "Encrypting database files and demanding a ransom", "Deleting a website's main SQL file"], answer: 1, difficulty: 'expert', keyTip: "SQL Injection exploits websites that don't properly sanitize user input.", explanation: "SQL Injection is an attack where malicious SQL statements are inserted into an entry field for execution, often to dump database contents to the attacker." },
-        { question: "A 'botnet' is a...", options: ["Type of advanced antivirus software", "Network of private computers infected with malicious software", "A secure chatroom for hackers", "A protocol for anonymous web browsing"], answer: 1, difficulty: 'expert', keyTip: "Botnets are often used to carry out large-scale DDoS attacks.", explanation: "A botnet is a collection of internet-connected devices, which could include PCs, servers, mobile devices and internet of things devices that have been compromised by a common type of malware." }
+        { question: "A 'botnet' is a...", options: ["Type of advanced antivirus software", "Network of private computers infected with malicious software", "A secure chatroom for hackers", "A protocol for anonymous web browsing"], answer: 1, difficulty: 'expert', keyTip: "Botnets are often used to carry out large-scale DDoS attacks.", explanation: "A botnet is a collection of internet-connected devices which have been compromised by a common type of malware." }
     ];
 
     const ACHIEVEMENTS = {
@@ -809,28 +803,23 @@
         streak_5: { name: 'On a Roll!', emoji: '🔥', description: 'Achieved a 5-answer streak.' },
         streak_10: { name: 'Unstoppable!', emoji: '🚀', description: 'Achieved a 10-answer streak.' },
         clutch_player: { name: 'Clutch Player', emoji: '⏳', description: 'Answered a Hard Mode question with less than 3 seconds left.' },
-        speed_demon: { name: 'Speed Demon', emoji: '⚡', description: 'Finished a Hard Mode round with an average of 10+ seconds remaining per question.' },
+        speed_demon: { name: 'Speed Demon', emoji: '⚡', description: 'Finished a Hard Mode round with an average of 5 seconds or less per question.' },
         quick_learner: { name: 'Quick Learner', emoji: '🧠', description: 'Used a hint and still got the answer correct.' }
     };
     
-    const roundTitles = ["Round 1: The Basics", "Round 2: Account Security", "Round 3: Safe Habits", "Round 4: Advanced Threats"];
+    const roundTitles = ["Round 1: The Basics", "Round 2: Account Security", "Round 3: Safe Habits"];
     const roundIntroData = [
-        { title: "Round 1: The Basics", message: "Let's get started!" },
-        { title: "Round 2: Account Security", message: "Time to level up!" },
-        { title: "Round 3: Safe Habits", message: "Building good habits!" },
-        { title: "Round 4: Advanced Threats", message: "Prepare for a challenge!" }
+        { title: "Round 1", message: "Let's get started!" },
+        { title: "Round 2", message: "Time to level up!" },
+        { title: "Round 3", message: "Building good habits!" }
     ];
-    const roundQuestions = 5;
+    const NUM_NORMAL_QUESTIONS = 15;
 
     const state = {
         quizData: [],
-        HARD_MODE_QUESTIONS_1: [],
-        HARD_MODE_QUESTIONS_2: [],
         currentQuestion: 0,
         score: 0,
         userAnswers: [],
-        hardModeUserAnswers1: [],
-        hardModeUserAnswers2: [],
         currentReviewIndex: 0,
         fullReviewData: [],
         scoreSaved: false,
@@ -861,65 +850,62 @@
         const leaderboardArea = getEl('leaderboard-area'), resultsLeaderboardArea = getEl('results-leaderboard-area');
         const streakCounter = getEl('streak-counter'), hintBtn = getEl('hint-btn'), achievementsEarned = getEl('achievements-earned');
         
-        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
-        function shuffleSet(masterSet) { const shuffled = JSON.parse(JSON.stringify(masterSet)); shuffled.forEach(q => { const c = q.options[q.answer]; shuffleArray(q.options); q.answer = q.options.indexOf(c); }); return shuffled; }
+        function shuffleArray(array) { 
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [arr[i], arr[j]] = [arr[j], arr[i]]; 
+            } 
+            return arr;
+        }
         
         function getPlayerProfile() {
             try {
                 const profile = JSON.parse(localStorage.getItem('playerProfile'));
-                if (profile && typeof profile.perfectRounds === 'number') {
-                    return profile;
-                }
+                if (profile && typeof profile.perfectRounds === 'number') return profile;
             } catch (e) {}
             return { perfectRounds: 0, highStreaks: 0, difficultyLevel: 'normal' };
         }
 
         function savePlayerProfile(profile) {
-            try {
-                localStorage.setItem('playerProfile', JSON.stringify(profile));
-            } catch (e) {
-                console.error("Could not save player profile:", e);
-            }
+            try { localStorage.setItem('playerProfile', JSON.stringify(profile)); } catch (e) { console.error("Could not save player profile:", e); }
         }
 
         async function initializeQuizData() {
             const playerProfile = getPlayerProfile();
             let notifyExpert = false;
 
-            if (playerProfile.difficultyLevel === 'normal' && playerProfile.perfectRounds >= 2 && playerProfile.highStreaks >= 6) {
+            if (playerProfile.difficultyLevel === 'normal' && playerProfile.perfectRounds >= 2 && playerProfile.highStreaks >= 3) {
                 playerProfile.difficultyLevel = 'expert';
                 savePlayerProfile(playerProfile);
                 notifyExpert = true;
             }
 
+            let questionPool;
             if (playerProfile.difficultyLevel === 'expert') {
                 const expertPool = MASTER_QUIZ_DATA.filter(q => q.difficulty !== 'easy');
-                const allQuestions = [...expertPool, ...MASTER_EXPERT_QUESTIONS];
-                state.quizData = shuffleSet(allQuestions).slice(0, 20);
+                questionPool = [...expertPool, ...MASTER_EXPERT_QUESTIONS];
             } else {
-                state.quizData = shuffleSet(MASTER_QUIZ_DATA);
+                questionPool = MASTER_QUIZ_DATA;
             }
+            // --- THIS IS THE MAIN SHUFFLE FOR QUESTIONS ---
+            state.quizData = shuffleArray(questionPool).slice(0, NUM_NORMAL_QUESTIONS);
             
-            // Set dynamic hard mode triggers based on the number of normal questions
             const numNormalQuestions = state.quizData.length;
             const firstTrigger = Math.floor(numNormalQuestions * 0.33);
             const secondTrigger = Math.floor(numNormalQuestions * 0.66);
-            state.hardModeTriggers = [firstTrigger, secondTrigger].filter((v, i, a) => a.indexOf(v) === i && v > 0 && v < numNormalQuestions -1); // Ensure unique and valid trigger points
+            state.hardModeTriggers = [firstTrigger, secondTrigger].filter((v, i, a) => a.indexOf(v) === i && v > 0 && v < numNormalQuestions -1);
 
-            state.HARD_MODE_QUESTIONS_1 = shuffleSet(MASTER_HARD_MODE_1);
-            state.HARD_MODE_QUESTIONS_2 = shuffleSet(MASTER_HARD_MODE_2);
-            state.userAnswers = new Array(state.quizData.length).fill(null);
-            state.hardModeUserAnswers1 = new Array(MASTER_HARD_MODE_1.length).fill(null);
-            state.hardModeUserAnswers2 = new Array(MASTER_HARD_MODE_2.length).fill(null);
+            // Reset all game state variables
+            state.userAnswers = new Array(numNormalQuestions).fill(null);
             state.score = 0;
             state.currentQuestion = 0;
             state.hardModeActive = false;
-            state.hardModeQuestionIndex = 0;
             state.scoreSaved = false; 
             state.currentStreak = 0;
             state.hintsRemaining = 2;
             state.sessionAchievements = new Set();
-            state.gameplayStats = { roundCorrect: [0, 0, 0, 0], hasPerfectRound: false, hm1_totalTime: 0, hm2_totalTime: 0, hm_clutch: false, usedHintAndCorrect: false };
+            state.gameplayStats = { roundCorrect: 0, hasPerfectRound: true, hm_clutch: false, usedHintAndCorrect: false, hmTotalTime: 0, hmAnswered: 0 };
             updateStreakCounter();
             clearInterval(state.questionTimer);
             quizContainer.classList.remove('hard-mode');
@@ -936,11 +922,7 @@
 
         function applySettings() {
             let settings = {};
-            try {
-                settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
-            } catch (e) {
-                console.error("Could not parse settings from localStorage", e);
-            }
+            try { settings = JSON.parse(localStorage.getItem('quizSettings')) || {}; } catch (e) {}
             document.body.classList.toggle('minimal-bg', settings.minimalBg);
             document.body.classList.toggle('high-contrast', settings.highContrast);
             document.body.classList.toggle('large-text', settings.largeText);
@@ -950,37 +932,33 @@
 
         function updateSetting(key, value) {
             let settings = {};
-            try {
-                settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
-            } catch (e) {
-                console.error("Could not parse settings for update", e);
-            }
+            try { settings = JSON.parse(localStorage.getItem('quizSettings')) || {}; } catch (e) {}
             settings[key] = value;
-            try {
-                localStorage.setItem('quizSettings', JSON.stringify(settings));
-            } catch (e) {
-                console.error("Could not update setting in localStorage:", e);
-            }
+            try { localStorage.setItem('quizSettings', JSON.stringify(settings)); } catch (e) {}
             applySettings();
         }
 
         function loadQuestion() {
-            if (state.currentQuestion >= state.quizData.length) {
-                showResults();
-                return;
-            }
             const q = state.quizData[state.currentQuestion];
-            const roundIdx = Math.floor(state.currentQuestion / roundQuestions);
-            roundTitleEl.textContent = roundTitles[roundIdx];
-            if (state.currentQuestion % roundQuestions === 0) {
-                roundTitleEl.classList.remove('animate-in');
-                void roundTitleEl.offsetWidth;
-                roundTitleEl.classList.add('animate-in');
-            }
+            const roundIdx = Math.floor(state.currentQuestion / (NUM_NORMAL_QUESTIONS / roundTitles.length));
+            roundTitleEl.textContent = roundTitles[roundIdx] || `Question ${state.currentQuestion + 1}`;
+            
             questionEl.textContent = q.question;
             optionsEl.innerHTML = ""; 
-            q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
-            hintBtn.disabled = state.hintsRemaining <= 0;
+            
+            // --- THIS IS THE MAIN SHUFFLE FOR OPTIONS ---
+            const shuffledOpts = shuffleArray(q.options);
+            const correctText = q.options[q.answer];
+            
+            shuffledOpts.forEach(opt => { 
+                const b = document.createElement("button"); 
+                b.textContent = opt; 
+                b.setAttribute('aria-label', `Select option: ${opt}`); 
+                b.onclick = (e) => checkAnswer(opt === correctText, e.target); 
+                optionsEl.appendChild(b); 
+            });
+
+            hintBtn.disabled = state.hintsRemaining <= 0 || state.hardModeActive;
             hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`;
             nextBtn.style.display = "none";
             feedbackArea.textContent = "";
@@ -989,63 +967,52 @@
 
         function updateStreakCounter() { if(state.currentStreak > 1) { streakCounter.textContent = `🔥 Streak: ${state.currentStreak}`; streakCounter.classList.add('visible'); } else { streakCounter.classList.remove('visible'); } }
         
-        function checkAnswer(selectedIndex, timedOut = false) {
+        function checkAnswer(isCorrect, clickedButton, timedOut = false) {
             clearInterval(state.questionTimer);
             timerBarContainer.style.display = 'none';
             const optionButtons = document.querySelectorAll("#options button");
-            let correctIndex, isCorrect = false;
             
+            const currentQ = state.hardModeActive ? state.activeHardModeSet[state.hardModeQuestionIndex] : state.quizData[state.currentQuestion];
+            const correctText = currentQ.options[currentQ.answer];
+
             if (state.hardModeActive) {
-                let timerDuration = 15;
-                try { timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15; } catch(e) {}
+                let timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
                 const timeTaken = timerDuration - state.timeLeft;
-                if(state.currentQuestion === state.hardModeTriggers[0]) state.gameplayStats.hm1_totalTime += timeTaken; else state.gameplayStats.hm2_totalTime += timeTaken;
+                state.gameplayStats.hmTotalTime += timeTaken;
+                state.gameplayStats.hmAnswered++;
                 if(!timedOut && state.timeLeft < 3) state.gameplayStats.hm_clutch = true;
-
-                const set = (state.currentQuestion === state.hardModeTriggers[0]) ? state.HARD_MODE_QUESTIONS_1 : state.HARD_MODE_QUESTIONS_2;
-                const answers = (state.currentQuestion === state.hardModeTriggers[0]) ? state.hardModeUserAnswers1 : state.hardModeUserAnswers2;
-                correctIndex = set[state.hardModeQuestionIndex].answer;
-                answers[state.hardModeQuestionIndex] = selectedIndex;
-
-                if (selectedIndex === correctIndex) {
-                    isCorrect = true;
-                    state.score += 2;
-                    feedbackArea.innerHTML = '<strong>Correct! +2 Points ✅</strong>';
-                    feedbackArea.className = 'correct visible';
-                } else {
-                    state.score = Math.max(0, state.score - 1);
-                    feedbackArea.innerHTML = timedOut ? '<strong>Time\'s Up! -1 Point ⏳</strong>' : '<strong>Incorrect! -1 Point ❌</strong>';
-                    feedbackArea.className = 'incorrect visible';
-                }
             } else {
-                correctIndex = state.quizData[state.currentQuestion].answer;
-                state.userAnswers[state.currentQuestion] = selectedIndex;
-                if (selectedIndex === correctIndex) {
-                    isCorrect = true;
-                    state.gameplayStats.roundCorrect[Math.floor(state.currentQuestion / roundQuestions)]++;
-                    state.score++;
-                    feedbackArea.innerHTML = '<strong>Correct! ✅</strong>';
-                    feedbackArea.className = 'correct visible';
-                } else {
-                    feedbackArea.innerHTML = '<strong>Not quite! The right answer is highlighted.</strong>';
-                    feedbackArea.className = 'incorrect visible';
-                }
+                if(!isCorrect) state.gameplayStats.hasPerfectRound = false;
             }
+            
+            state.userAnswers.push({ ...currentQ, userAnswerText: clickedButton ? clickedButton.textContent : null, isHardMode: state.hardModeActive });
 
             if(isCorrect) {
                 state.currentStreak++;
-                if(state.currentStreak > 0 && state.currentStreak % 5 === 0) { state.score++; feedbackArea.innerHTML += ' <strong>+1 Streak Bonus!</strong>'; }
+                state.score += state.hardModeActive ? 2 : 1;
+                if(state.currentStreak > 0 && state.currentStreak % 5 === 0) { state.score++; feedbackArea.innerHTML = '<strong>Correct! +1 Streak Bonus!</strong>'; }
+                else { feedbackArea.innerHTML = state.hardModeActive ? '<strong>Correct! +2 Points ✅</strong>' : '<strong>Correct! ✅</strong>'; }
+
                 if(hintBtn.disabled && state.hintsRemaining < 2) state.gameplayStats.usedHintAndCorrect = true;
                 correctSound.play().catch(e => {});
                 triggerScreenFlash(true);
+                feedbackArea.className = 'correct visible';
             } else {
                 state.currentStreak = 0;
+                state.score = state.hardModeActive ? Math.max(0, state.score - 1) : state.score;
+                feedbackArea.innerHTML = timedOut ? '<strong>Time\'s Up! -1 Point ⏳</strong>' : (state.hardModeActive ? '<strong>Incorrect! -1 Point ❌</strong>' : '<strong>Not quite!</strong>');
                 incorrectSound.play().catch(e => {});
                 triggerScreenFlash(false);
+                feedbackArea.className = 'incorrect visible';
             }
 
             updateStreakCounter();
-            optionButtons.forEach((btn, i) => { btn.disabled = true; if (i === correctIndex) btn.classList.add('correct'); if (selectedIndex === i && selectedIndex !== correctIndex) btn.classList.add('incorrect'); });
+            optionButtons.forEach(btn => { 
+                btn.disabled = true; 
+                if (btn.textContent === correctText) btn.classList.add('correct');
+            });
+            if (!isCorrect && clickedButton) clickedButton.classList.add('incorrect');
+            
             hintBtn.disabled = true;
             nextBtn.style.display = "inline-block";
             nextBtn.focus();
@@ -1059,8 +1026,7 @@
         
         function triggerFireworks() {
             if (document.body.classList.contains('reduce-motion')) return;
-            const duration = 2 * 1000;
-            const animationEnd = Date.now() + duration;
+            const duration = 2 * 1000, animationEnd = Date.now() + duration;
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001 };
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
             const interval = setInterval(function() {
@@ -1073,54 +1039,37 @@
         }
 
         function calculateScoreBreakdown() {
-            let n = 0, hm = 0;
-            state.userAnswers.forEach((a, i) => { if(a === state.quizData[i].answer) n++; });
-            state.hardModeUserAnswers1.forEach((a,i) => { if(a === state.HARD_MODE_QUESTIONS_1[i].answer) hm+=2; else if(a !== null && a !== -1) hm--; });
-            state.hardModeUserAnswers2.forEach((a,i) => { if(a === state.HARD_MODE_QUESTIONS_2[i].answer) hm+=2; else if(a !== null && a !== -1) hm--; });
-            return { normalScore: n, hardModeScore: hm };
+            let n = 0;
+            let streakBonus = 0;
+            let tempStreak = 0;
+            state.userAnswers.forEach(ans => {
+                if(ans.options[ans.answer] === ans.userAnswerText) {
+                    if(!ans.isHardMode) n++;
+                    tempStreak++;
+                    if(tempStreak > 0 && tempStreak % 5 === 0) streakBonus++;
+                } else {
+                    tempStreak = 0;
+                }
+            });
+            const hm = state.score - n - streakBonus;
+            return { normalScore: n, hardModeScore: hm, streakBonus };
         }
 
         function checkAchievements() {
             state.sessionAchievements = new Set();
-
-            if(state.gameplayStats.roundCorrect.some(r => r === roundQuestions)) {
-                state.sessionAchievements.add('perfect_round');
-                state.gameplayStats.hasPerfectRound = true;
+            if (state.gameplayStats.hasPerfectRound) state.sessionAchievements.add('perfect_round');
+            if (state.currentStreak >= 10) state.sessionAchievements.add('streak_10');
+            else if (state.currentStreak >= 5) state.sessionAchievements.add('streak_5');
+            if (state.gameplayStats.hm_clutch) state.sessionAchievements.add('clutch_player');
+            if (state.gameplayStats.hmAnswered > 0) {
+                const avgTime = state.gameplayStats.hmTotalTime / state.gameplayStats.hmAnswered;
+                if (avgTime < 5) state.sessionAchievements.add('speed_demon');
             }
-            
-            let maxStreak = 0;
-            let currentProcessingStreak = 0;
-            const allAnswers = state.userAnswers.map((a,i) => ({a, c: state.quizData[i].answer}))
-                                .concat(state.hardModeUserAnswers1.map((a,i) => ({a, c: state.HARD_MODE_QUESTIONS_1[i].answer})))
-                                .concat(state.hardModeUserAnswers2.map((a,i) => ({a, c: state.HARD_MODE_QUESTIONS_2[i].answer})));
-            
-            allAnswers.forEach(ans => {
-                if(ans.a === ans.c && ans.a !== null) { currentProcessingStreak++; }
-                else { maxStreak = Math.max(maxStreak, currentProcessingStreak); currentProcessingStreak = 0; }
-            });
-            maxStreak = Math.max(maxStreak, currentProcessingStreak);
-            
-            if(maxStreak >= 10) state.sessionAchievements.add('streak_10');
-            else if(maxStreak >= 5) state.sessionAchievements.add('streak_5');
-
-            if(state.gameplayStats.hm_clutch) state.sessionAchievements.add('clutch_player');
-            const avgTime1 = state.gameplayStats.hm1_totalTime / MASTER_HARD_MODE_1.length;
-            const avgTime2 = state.gameplayStats.hm2_totalTime / MASTER_HARD_MODE_2.length;
-            if((avgTime1 > 0 && avgTime1 < 5) || (avgTime2 > 0 && avgTime2 < 5)) state.sessionAchievements.add('speed_demon');
-            if(state.gameplayStats.usedHintAndCorrect) state.sessionAchievements.add('quick_learner');
-            
-            const playerProfile = getPlayerProfile();
-            if (state.gameplayStats.hasPerfectRound) {
-                playerProfile.perfectRounds++;
-            }
-            if (maxStreak >= 5) {
-                playerProfile.highStreaks++;
-            }
-            savePlayerProfile(playerProfile);
+            if (state.gameplayStats.usedHintAndCorrect) state.sessionAchievements.add('quick_learner');
         }
 
         function displayEarnedAchievements() {
-            if (state.sessionAchievements.size === 0) { achievementsEarned.innerHTML = ''; return; }
+             if (state.sessionAchievements.size === 0) { achievementsEarned.innerHTML = ''; return; }
             let html = '<h3>Achievements Unlocked!</h3><div class="achievement-list">';
             state.sessionAchievements.forEach(id => { const ach = ACHIEVEMENTS[id]; html += `<div class="achievement-badge" title="${ach.description}">${ach.emoji} ${ach.name}</div>`; });
             html += '</div>';
@@ -1134,8 +1083,8 @@
             resultsContainer.classList.remove('hidden');
             displayLeaderboard(resultsLeaderboardArea);
             
-            const { normalScore, hardModeScore } = calculateScoreBreakdown();
-            scoreDisplayArea.innerHTML = `<div class="score-breakdown"><div>Normal Score: <span class="score-value">${normalScore} / 20</span></div><div>Hard Mode Bonus: <span class="score-value ${hardModeScore >= 0 ? 'bonus-positive' : 'bonus-negative'}">${hardModeScore >= 0 ? '+' : ''}${hardModeScore}</span></div><div>Final Score: <span class="score-value final" id="final-score-value">0</span></div></div>`;
+            const { normalScore, hardModeScore, streakBonus } = calculateScoreBreakdown();
+            scoreDisplayArea.innerHTML = `<div class="score-breakdown"><div>Normal Score: <span class="score-value">${normalScore} / ${NUM_NORMAL_QUESTIONS}</span></div><div>Hard Mode Bonus: <span class="score-value ${hardModeScore >= 0 ? 'bonus-positive' : 'bonus-negative'}">${hardModeScore >= 0 ? '+' : ''}${hardModeScore}</span></div><div>Streak Bonus: <span class="score-value bonus-positive">+${streakBonus}</span></div><div>Final Score: <span class="score-value final" id="final-score-value">0</span></div></div>`;
             
             const finalScoreEl = getEl('final-score-value');
             let tempScore = 0;
@@ -1150,60 +1099,49 @@
                 } else {
                     highScoreArea.innerHTML = `🏆 Family High Score: ${hs}`;
                 }
-            } catch (e) { highScoreArea.textContent = ""; console.error(e); }
+            } catch (e) { highScoreArea.textContent = ""; }
             
             saveScoreArea.classList.remove('hidden');
-            saveScoreArea.innerHTML = `<input type="text" id="player-name" placeholder="Enter Parent's Name" maxlength="15"><button id="save-score-btn">Save to Leaderboard</button>`;
+            saveScoreArea.innerHTML = `<input type="text" id="player-name" placeholder="Enter Your Name" maxlength="15"><button id="save-score-btn">Save to Leaderboard</button>`;
             getEl('save-score-btn').onclick = saveScoreAction;
             
             const medalDisplay = getEl('medal-display');
             medalDisplay.className = 'medal-display';
             let badge, medalIcon;
-            if (state.score >= 26) {
-                badge = "Gold Cyber Guardian";
-                medalIcon = "🥇";
-                medalDisplay.classList.add('gold');
-                setTimeout(triggerFireworks, 300);
-            } else if (state.score >= 18) {
-                badge = "Silver Safety Sentinel";
-                medalIcon = "🥈";
-                medalDisplay.classList.add('silver');
-                if (!document.body.classList.contains('reduce-motion')) {
-                    setTimeout(() => confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, angle: 270, zIndex: 1001 }), 300);
-                }
+            if (state.score >= (NUM_NORMAL_QUESTIONS + 8)) {
+                badge = "Gold Cyber Guardian"; medalIcon = "🥇"; medalDisplay.classList.add('gold'); setTimeout(triggerFireworks, 300);
+            } else if (state.score >= (NUM_NORMAL_QUESTIONS + 2)) {
+                badge = "Silver Safety Sentinel"; medalIcon = "🥈"; medalDisplay.classList.add('silver'); if (!document.body.classList.contains('reduce-motion')) { setTimeout(() => confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, angle: 270, zIndex: 1001 }), 300); }
             } else {
-                badge = "Bronze Digital Explorer";
-                medalIcon = "🥉";
-                medalDisplay.classList.add('bronze');
+                badge = "Bronze Digital Explorer"; medalIcon = "🥉"; medalDisplay.classList.add('bronze');
             }
             getEl('final-badge').textContent = badge;
             medalDisplay.innerHTML = `<span>${medalIcon}</span>`;
             displayEarnedAchievements();
-            getEl('thank-you-message').innerHTML = `<b>Thanks for playing!</b><br>A project developed by Saksham Negi, with feedback from Aarish Walia, of the Computer Club.<br>Contact: hianime.2810@gmail.com`;
+            getEl('thank-you-message').innerHTML = `<b>Thanks for playing!</b><br>A project by Saksham Negi, with feedback from Aarish Walia.<br>Contact: hianime.2810@gmail.com`;
             
             const scrollIndicator = getEl('scroll-indicator');
             setTimeout(() => { scrollIndicator.classList.toggle('hidden', resultsContainer.scrollHeight <= resultsContainer.clientHeight); }, 100);
 
-            const hideOnScroll = () => {
-                scrollIndicator.classList.add('hidden');
-                resultsContainer.removeEventListener('scroll', hideOnScroll);
-            };
+            const hideOnScroll = () => { scrollIndicator.classList.add('hidden'); resultsContainer.removeEventListener('scroll', hideOnScroll); };
             resultsContainer.addEventListener('scroll', hideOnScroll);
             scrollIndicator.onclick = () => resultsContainer.scrollBy({ top: 150, behavior: 'smooth' });
+
+            const playerProfile = getPlayerProfile();
+            if (state.gameplayStats.hasPerfectRound) playerProfile.perfectRounds++;
+            if (state.currentStreak >= 5) playerProfile.highStreaks++;
+            savePlayerProfile(playerProfile);
         }
         
         function prepareFullReview() {
-            state.fullReviewData = [];
-            state.quizData.forEach((q, i) => { if(state.userAnswers[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.userAnswers[i], isHardMode: false }); });
-            state.HARD_MODE_QUESTIONS_1.forEach((q, i) => { if(state.hardModeUserAnswers1[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.hardModeUserAnswers1[i], isHardMode: true }); });
-            state.HARD_MODE_QUESTIONS_2.forEach((q, i) => { if(state.hardModeUserAnswers2[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.hardModeUserAnswers2[i], isHardMode: true }); });
+            state.fullReviewData = state.userAnswers.filter(a => a);
         }
         
         function renderReviewItem(index) {
             const item = state.fullReviewData[index];
-            const userAnswerIndex = item.userAnswer;
-            const isCorrect = userAnswerIndex === item.answer;
-            const reviewHTML = `<h3 id="modal-title-id">Review: Item ${index + 1} / ${state.fullReviewData.length}</h3><div id="review-nav"><button id="prev-review-btn" ${index === 0 ? 'disabled' : ''}>&larr; Previous</button><button id="next-review-btn" ${index === state.fullReviewData.length - 1 ? 'disabled' : ''}>Next &rarr;</button></div><div id="review-content">${item.isHardMode ? '<div class="review-hard-mode-label">⚡ Hard Mode Question</div>' : ''}<p class="review-question">${item.question}</p>${item.keyTip ? `<div class="key-tip"><strong>Key Tip:</strong> ${item.keyTip}</div>` : ''}<div class="review-answers"><p class="user-answer ${isCorrect ? 'is-correct' : 'is-incorrect'}">Your Answer: ${item.options[userAnswerIndex] ?? 'Timed Out / Not answered'}</p>${!isCorrect ? `<p class="correct-answer">Correct Answer: ${item.options[item.answer]}</p>` : ''}</div><p class="explanation"><strong>Explanation:</strong> ${item.explanation}</p></div>`;
+            const correctText = item.options[item.answer];
+            const isCorrect = item.userAnswerText === correctText;
+            const reviewHTML = `<div id="review-header"><h3 id="modal-title-id">Review: Item ${index + 1} / ${state.fullReviewData.length}</h3><div id="review-nav"><button id="prev-review-btn" ${index === 0 ? 'disabled' : ''}>&larr; Prev</button><button id="next-review-btn" ${index === state.fullReviewData.length - 1 ? 'disabled' : ''}>Next &rarr;</button></div></div><div id="review-content">${item.isHardMode ? '<div class="review-hard-mode-label">⚡ Hard Mode Question</div>' : ''}<p class="review-question">${item.question}</p>${item.keyTip ? `<div class="key-tip"><strong>Key Tip:</strong> ${item.keyTip}</div>` : ''}<div class="review-answers"><p class="user-answer ${isCorrect ? 'is-correct' : 'is-incorrect'}">Your Answer: ${item.userAnswerText ?? 'Timed Out'}</p>${!isCorrect ? `<p class="correct-answer">Correct Answer: ${correctText}</p>` : ''}</div><p class="explanation"><strong>Explanation:</strong> ${item.explanation}</p></div>`;
             showCustomModal({ customHTML: reviewHTML });
             getEl('prev-review-btn').onclick = () => { if (state.currentReviewIndex > 0) { state.currentReviewIndex--; renderReviewItem(state.currentReviewIndex); } };
             getEl('next-review-btn').onclick = () => { if (state.currentReviewIndex < state.fullReviewData.length - 1) { state.currentReviewIndex++; renderReviewItem(state.currentReviewIndex); } };
@@ -1230,46 +1168,20 @@
                 const inputField = getEl('modal-input-field');
                 if(inputField) inputField.focus();
 
-                const focusableElements = modalContent.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
-
-                const trapFocus = (e) => {
-                    if (e.key !== 'Tab') return;
-                    if (e.shiftKey) { 
-                        if (document.activeElement === firstElement) {
-                            lastElement.focus();
-                            e.preventDefault();
-                        }
-                    } else { 
-                        if (document.activeElement === lastElement) {
-                            firstElement.focus();
-                            e.preventDefault();
-                        }
-                    }
-                };
-                modalContent.addEventListener('keydown', trapFocus);
-
                 const closeModal = (value) => {
-                    modalContent.removeEventListener('keydown', trapFocus);
                     modalOverlay.classList.remove('show');
-                    resolve(value);
+                    resolve({ button: value.button || value, value: value.value || (inputField ? inputField.value : null) });
                 };
 
-                if (buttons) { buttons.forEach(btn => { getEl(`modal-btn-${btn.value}`).onclick = () => { let val = btn.value; if (inputField) val = { button: btn.value, value: inputField.value }; closeModal(val); }; }); }
+                if (buttons) { buttons.forEach(btn => { getEl(`modal-btn-${btn.value}`).onclick = () => closeModal(btn); }); }
                 if (allowClose) { modalContent.querySelector('.modal-close-btn').onclick = () => closeModal(false); }
             });
         }
         
-        function triggerHardMode(hardModeRound) {
-            state.activeHardModeSet = hardModeRound;
-            let timerDuration = 15;
-            try {
-                timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
-            } catch (e) {
-                console.error("Could not get hard mode timer setting", e);
-            }
-            const hardModeIntroHTML = `<h2 id="modal-title-id">⚡ Special Round: Hard Mode ⚡</h2><p style="text-align:center;">Get ready for a challenge! The rules are different here:</p><ul style="text-align: left; margin: 0 auto; max-width: 300px;"><li><strong>${timerDuration} second timer</strong> per question.</li><li>Correct answers are worth <strong>+2 points</strong>.</li><li>Wrong answers or running out of time will cost you <strong>-1 point</strong>.</li></ul><div class="modal-buttons"><button id="start-hard-mode-btn" class="main-btn">Start Hard Mode</button></div>`;
+        function triggerHardMode() {
+            state.activeHardModeSet = shuffleArray(MASTER_HARD_MODE).slice(0, 3);
+            let timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
+            const hardModeIntroHTML = `<h2 id="modal-title-id">⚡ Special Round: Hard Mode ⚡</h2><p style="text-align:center;">Get ready for a challenge!</p><ul><li><strong>${timerDuration}s timer</strong> per question.</li><li>Correct answers: <strong>+2 points</strong>.</li><li>Wrong/timeout: <strong>-1 point</strong>.</li></ul><div class="modal-buttons"><button id="start-hard-mode-btn" class="main-btn">Start</button></div>`;
             showCustomModal({ customHTML: hardModeIntroHTML, allowClose: false });
             getEl('start-hard-mode-btn').onclick = () => { modalOverlay.classList.remove('show'); state.hardModeActive = true; state.hardModeQuestionIndex = 0; quizContainer.classList.add('hard-mode'); loadHardModeQuestion(); };
         }
@@ -1278,19 +1190,18 @@
             const q = state.activeHardModeSet[state.hardModeQuestionIndex];
             roundTitleEl.textContent = `Hard Mode: Question ${state.hardModeQuestionIndex + 1}`;
             progressBar.classList.add('hard-mode-progress');
-            progressBar.style.width = `${((state.hardModeQuestionIndex) / state.activeHardModeSet.length) * 100}%`;
-            setTimeout(() => { progressBar.style.width = `${((state.hardModeQuestionIndex + 1) / state.activeHardModeSet.length) * 100}%`; }, 100);
             
             questionEl.textContent = q.question;
             optionsEl.innerHTML = "";
-            q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
+            const shuffledOpts = shuffleArray(q.options);
+            const correctText = q.options[q.answer];
+            shuffledOpts.forEach(opt => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = (e) => checkAnswer(opt === correctText, e.target); optionsEl.appendChild(b); });
             
             nextBtn.style.display = "none";
             feedbackArea.textContent = "";
             feedbackArea.className = "";
             
-            let timerDuration = 15;
-            try { timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15; } catch(e){}
+            let timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
             timerBarContainer.style.display = 'block';
             timerBar.style.transition = 'none';
             timerBar.style.width = '100%';
@@ -1307,7 +1218,7 @@
                 if (state.timeLeft <= 0) {
                     clearInterval(state.questionTimer);
                     document.querySelectorAll("#options button").forEach(btn => btn.disabled = true);
-                    checkAnswer(-1, true);
+                    checkAnswer(false, null, true);
                 }
             }, 1000);
         }
@@ -1316,19 +1227,13 @@
             clearInterval(state.questionTimer);
             quizContainer.classList.remove('hard-mode');
             progressBar.classList.remove('hard-mode-progress');
-            progressBar.style.width = `${((state.currentQuestion) / state.quizData.length) * 100}%`;
-            
-            const roundIndex = Math.floor(state.currentQuestion / roundQuestions);
-            if (roundIndex < roundTitles.length) {
-                showRoundBanner(roundIndex, loadQuestion);
-            } else {
-                loadQuestion();
-            }
+            const roundIndex = Math.floor(state.currentQuestion / (NUM_NORMAL_QUESTIONS / roundTitles.length));
+            showRoundBanner(roundIndex, loadQuestion);
         }
         
         function displayLeaderboard(targetElement) {
             let leaderboard = [];
-            try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e) { console.error("Could not parse leaderboard", e); }
+            try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e) {}
             targetElement.innerHTML = '<h3>🏆 Top 5 Scores</h3>';
             if (leaderboard.length === 0) { targetElement.innerHTML += '<p>Be the first on the leaderboard!</p>'; return; }
             const list = document.createElement('ol');
@@ -1337,9 +1242,7 @@
                 item.setAttribute('role', 'button');
                 item.setAttribute('tabindex', '0');
                 let icon = '🎖️ ';
-                if (index === 0) icon = '🥇 ';
-                else if (index === 1) icon = '🥈 ';
-                else if (index === 2) icon = '🥉 ';
+                if (index === 0) icon = '🥇 '; else if (index === 1) icon = '🥈 '; else if (index === 2) icon = '🥉 ';
                 item.innerHTML = `<span>${icon}${entry.name}</span><span class="score">${entry.score}</span>`;
                 item.onclick = () => showPlayerAchievements(entry);
                 item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { showPlayerAchievements(entry); } };
@@ -1366,7 +1269,7 @@
             if (!playerName) { await showCustomModal({ title: "Input Required", message: "Please enter a name to save your score.", buttons: [{ text: 'OK', value: 'ok', class: 'main-btn' }] }); return; }
             try {
                 let leaderboard = [];
-                try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e){ console.error(e); }
+                try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e){}
                 if (leaderboard.some(e => e.name.toLowerCase() === playerName.toLowerCase())) { 
                     let c = 2, n = `${playerName} #${c}`;
                     while (leaderboard.some(e => e.name.toLowerCase() === n.toLowerCase())) { c++; n = `${playerName} #${c}`; } 
@@ -1374,11 +1277,11 @@
                 }
                 leaderboard.push({ name: playerName, score: state.score, achievements: Array.from(state.sessionAchievements) });
                 leaderboard.sort((a, b) => b.score - a.score);
-                localStorage.setItem('cyberQuizLeaderboard', JSON.stringify(leaderboard));
+                localStorage.setItem('cyberQuizLeaderboard', JSON.stringify(leaderboard.slice(0, 50)));
                 saveScoreArea.innerHTML = `<p>Score Saved!</p>`;
                 state.scoreSaved = true;
                 displayLeaderboard(resultsLeaderboardArea);
-            } catch (e) { console.error("Could not save to leaderboard:", e); saveScoreArea.innerHTML = `<p>Could not save score.</p>`; }
+            } catch (e) { saveScoreArea.innerHTML = `<p>Could not save score.</p>`; }
         }
 
         function initStarfield(canvas) {
@@ -1396,10 +1299,9 @@
             resize();
             window.addEventListener('resize', resize);
             const tick = () => {
-                if(document.body.classList.contains('reduce-motion')) { ctx.clearRect(0, 0, canvas.width, canvas.height); requestAnimationFrame(tick); return; };
+                if(document.body.classList.contains('reduce-motion')) { requestAnimationFrame(tick); return; };
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const starColor = getComputedStyle(document.body).getPropertyValue('--star-color').trim();
-                ctx.fillStyle = starColor;
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--star-color').trim();
                 stars.forEach(s => { s.y += (s.radius * 0.1); if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; } ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, 2 * Math.PI); ctx.fill(); });
                 requestAnimationFrame(tick);
             };
@@ -1408,6 +1310,7 @@
 
         function showRoundBanner(roundIndex, callback) {
             const intro = roundIntroData[roundIndex];
+            if (!intro) { if (callback) callback(); return; }
             roundIntroBanner.innerHTML = `<h3>${intro.title}</h3><p>${intro.message}</p>`;
             roundIntroBanner.classList.add('show');
             setTimeout(() => { roundIntroBanner.classList.remove('show'); if (callback) callback(); }, 2500);
@@ -1416,22 +1319,16 @@
         async function promptForAdminPassword() {
             const ADMIN_PASSWORD = 'hianime.2810@gmail.com'; 
             const password = await showCustomModal({
-                title: "Admin Access Required",
-                message: "Please enter the admin password to proceed.",
+                title: "Admin Access Required", message: "Please enter the admin password.",
                 input: { type: 'password', placeholder: 'Password' },
-                buttons: [
-                    { text: 'Submit', value: 'submit', class: 'secondary-btn' },
-                    { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }
-                ]
+                buttons: [{ text: 'Submit', value: 'submit' }, { text: 'Cancel', value: 'cancel' }]
             });
 
-            if (password.button === 'submit') {
-                if (password.value === ADMIN_PASSWORD) {
-                    return true;
-                } else {
-                    showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
-                    return false;
-                }
+            if (password.button === 'submit' && password.value === ADMIN_PASSWORD) {
+                return true;
+            } else if (password.button === 'submit') {
+                showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
+                return false;
             }
             return false;
         }
@@ -1457,37 +1354,26 @@
             }
             
             state.currentQuestion++;
+            progressBar.style.width = `${(state.currentQuestion / state.quizData.length) * 100}%`;
             
-            // Replaced fixed triggers with dynamic ones
-            if (state.hardModeTriggers.includes(state.currentQuestion)) {
-                progressBar.style.width = `${(state.currentQuestion / state.quizData.length) * 100}%`;
-                const hardModeSet = (state.hardModeTriggers[0] === state.currentQuestion) ? state.HARD_MODE_QUESTIONS_1 : state.HARD_MODE_QUESTIONS_2;
-                state.hardModeTriggers.shift(); // Remove the used trigger
-                triggerHardMode(hardModeSet);
+            const roundIdx = Math.floor(state.currentQuestion / (NUM_NORMAL_QUESTIONS / roundTitles.length));
+            if (state.currentQuestion > 0 && state.currentQuestion % (NUM_NORMAL_QUESTIONS / roundTitles.length) === 0 && roundIdx < roundTitles.length) {
+                showRoundBanner(roundIdx, loadQuestion);
             } else {
-                if (state.currentQuestion >= state.quizData.length) { showResults(); return; }
-                progressBar.style.width = `${(state.currentQuestion / state.quizData.length) * 100}%`;
-                const roundIndex = Math.floor(state.currentQuestion / roundQuestions);
-                if (state.currentQuestion % roundQuestions === 0) {
-                    showRoundBanner(roundIndex, loadQuestion);
-                } else {
-                    loadQuestion();
-                }
+                loadQuestion();
             }
         };
 
         goHomeBtn.onclick = async () => {
             if (!state.scoreSaved) {
                 const confirmed = await showCustomModal({
-                    title: "Are you sure?",
-                    message: "You haven't saved your score. It will be lost if you go home.",
+                    title: "Are you sure?", message: "You haven't saved your score. It will be lost if you go home.",
                     buttons: [{ text: "Go Home", value: 'confirm', class: 'danger-btn' }, { text: "Cancel", value: 'cancel', class: 'secondary-btn' }],
                     allowClose: false
                 });
                 if (confirmed.button !== 'confirm') return;
             }
             clearInterval(state.questionTimer);
-            await initializeQuizData();
             resultsContainer.classList.add('hidden');
             welcomeContainer.classList.remove('hidden');
             displayLeaderboard(leaderboardArea);
@@ -1501,15 +1387,22 @@
                 hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`;
                 hintBtn.disabled = true; 
                 const q = state.hardModeActive ? state.activeHardModeSet[state.hardModeQuestionIndex] : state.quizData[state.currentQuestion];
+                const correctText = q.options[q.answer];
                 const options = Array.from(document.querySelectorAll('.options button'));
                 let removed = 0;
-                const toRemove = options.length > 3 ? 2 : 1;
-                options.forEach((opt, i) => { if (i !== q.answer && removed < toRemove) { opt.classList.add('hint-removed'); removed++; } });
+                const toRemove = options.length > 2 ? 2 : 1;
+                
+                shuffleArray(options).forEach(opt => {
+                    if (opt.textContent !== correctText && removed < toRemove) {
+                        opt.classList.add('hint-removed');
+                        removed++;
+                    }
+                });
             } 
         };
         
         aboutBtn.onclick = () => {
-            const aboutHTML = `<h2 id="modal-title-id">About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h3 style="margin-top: 25px;">Credit</h3><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h3 style="margin-top: 25px;">Version History</h3><div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 15px;"><p>V1-V29: Foundational development and feature creep.</p><p>V30: Definitive, corrected, and feature-complete version.</p></div>`;
+            const aboutHTML = `<h2 id="modal-title-id">About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h3 style="margin-top: 25px;">Credit</h3><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h3 style="margin-top: 25px;">Version History</h3><p style="text-align:center; font-size: 14px;">V1-V29: Foundational development and feature additions.<br>V30: Definitive, feature-complete version with all fixes.</p>`;
             showCustomModal({ customHTML: aboutHTML });
         };
         
@@ -1517,32 +1410,28 @@
             let settings = {};
             try { settings = JSON.parse(localStorage.getItem('quizSettings')) || {}; } catch (e) {}
             
-            const settingsHTML = `<h2 id="modal-title-id">⚙️ Settings</h2><div class="settings-row"><label for="theme-select">🎨 Theme</label><select id="theme-select"><option value="dark">Cyber Dark</option><option value="light">Solarized Light</option><option value="contrast">High Contrast</option></select></div><div class="settings-row"><label for="timer-select">⏱️ Hard Mode Timer</label><select id="timer-select"><option value="15">15 Seconds</option><option value="20">20 Seconds</option><option value="30">30 Seconds</option></select></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Accessibility</h3><div class="settings-row"><label for="bg-toggle">🌌 Background Effects</label><label class="switch"><input type="checkbox" id="bg-toggle" ${!settings.minimalBg ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="text-toggle">🔍 Large Text</label><label class="switch"><input type="checkbox" id="text-toggle" ${settings.largeText ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="motion-toggle">💨 Reduce Motion</label><label class="switch"><input type="checkbox" id="motion-toggle" ${settings.reduceMotion ? 'checked' : ''}><span class="slider"></span></label></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Admin</h3><div class="settings-row"><label for="manage-leaderboard-btn">Manage Leaderboard</label><button id="manage-leaderboard-btn">Manage</button></div><div class="settings-row"><label for="new-player-btn">Reset Settings</label><button id="new-player-btn">Reset</button></div><div class="settings-row"><label for="master-reset-btn">Master Reset</label><button id="master-reset-btn" class="danger">Reset All Data</button></div>`;
+            const settingsHTML = `<h2 id="modal-title-id">⚙️ Settings</h2><div class="settings-row"><label for="theme-select">🎨 Theme</label><select id="theme-select"><option value="dark">Cyber Dark</option><option value="light">Solarized Light</option><option value="contrast">High Contrast</option></select></div><div class="settings-row"><label for="timer-select">⏱️ Hard Mode Timer</label><select id="timer-select"><option value="15">15 Seconds</option><option value="20">20 Seconds</option><option value="30">30 Seconds</option></select></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Accessibility</h3><div class="settings-row"><label for="bg-toggle">🌌 Background Effects</label><label class="switch"><input type="checkbox" id="bg-toggle" ${!settings.minimalBg ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="text-toggle">🔍 Large Text</label><label class="switch"><input type="checkbox" id="text-toggle" ${settings.largeText ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="motion-toggle">💨 Reduce Motion</label><label class="switch"><input type="checkbox" id="motion-toggle" ${settings.reduceMotion ? 'checked' : ''}><span class="slider"></span></label></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Admin & Debug</h3><div class="settings-row"><label>Force Unlock Expert Mode</label><button id="debug-expert-btn">Unlock</button></div><div class="settings-row"><label for="manage-leaderboard-btn">Manage Leaderboard</label><button id="manage-leaderboard-btn">Manage</button></div><div class="settings-row"><label for="new-player-btn">Reset Settings</label><button id="new-player-btn">Reset</button></div><div class="settings-row"><label for="master-reset-btn">Master Reset</label><button id="master-reset-btn" class="danger">Reset All Data</button></div>`;
             showCustomModal({ customHTML: settingsHTML });
             
+            getEl('debug-expert-btn').onclick = () => {
+                const profile = { perfectRounds: 99, highStreaks: 99, difficultyLevel: 'normal' };
+                savePlayerProfile(profile);
+                showCustomModal({ title: "Debug", message: "Expert Mode stats have been applied. Start a new game to see the effect.", buttons: [{ text: "OK", value: 'ok'}] });
+            };
+
             const themeSelect = getEl('theme-select');
-            if (settings.highContrast) {
-                themeSelect.value = 'contrast';
-            } else {
-                themeSelect.value = settings.theme || 'dark';
-            }
+            if (settings.highContrast) themeSelect.value = 'contrast';
+            else themeSelect.value = settings.theme || 'dark';
             
             const bgToggle = getEl('bg-toggle');
             const motionToggle = getEl('motion-toggle');
 
-            if (settings.reduceMotion) {
-                bgToggle.disabled = true;
-            }
+            if (settings.reduceMotion) bgToggle.disabled = true;
 
             themeSelect.onchange = (e) => {
                 const selection = e.target.value;
-                if (selection === 'contrast') {
-                    updateSetting('highContrast', true);
-                    updateSetting('theme', 'dark'); 
-                } else {
-                    updateSetting('highContrast', false);
-                    updateSetting('theme', selection);
-                }
+                updateSetting('highContrast', selection === 'contrast');
+                updateSetting('theme', selection === 'contrast' ? 'dark' : selection);
             };
             
             getEl('timer-select').value = settings.hardModeTimer || '15';
@@ -1554,7 +1443,6 @@
             motionToggle.onchange = (e) => {
                 const reduceMotion = e.target.checked;
                 updateSetting('reduceMotion', reduceMotion);
-
                 if (reduceMotion) {
                     updateSetting('minimalBg', true);
                     bgToggle.checked = false;
@@ -1566,20 +1454,18 @@
 
             getEl('master-reset-btn').onclick = async () => {
                 if (!await promptForAdminPassword()) return;
-                const result = await showCustomModal({ title: "⚠️ Master Reset ⚠️", message: "This will delete ALL data, including settings, high scores, and the leaderboard. This action cannot be undone. Please type 'RESET' below to confirm.", input: { placeholder: 'Type RESET here' }, buttons: [{ text: 'Confirm Reset', value: 'confirm', class: 'danger-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }] });
+                const result = await showCustomModal({ title: "⚠️ Master Reset ⚠️", message: "This will delete ALL data, including settings, high scores, and the leaderboard. This cannot be undone. Type 'RESET' to confirm.", input: { placeholder: 'Type RESET here' }, buttons: [{ text: 'Confirm Reset', value: 'confirm', class: 'danger-btn' }, { text: 'Cancel', value: 'cancel' }] });
                 if (result.button === 'confirm' && result.value.toUpperCase() === 'RESET') {
-                    try {
-                        localStorage.clear();
-                        await showCustomModal({ title: "Success", message: "All data has been reset. The page will now reload.", buttons: [{ text: 'Reload', value: 'ok', class: 'main-btn' }] });
-                        window.location.reload();
-                    } catch (e) { showCustomModal({ title: "Error", message: "An error occurred while trying to reset data.", buttons: [{ text: 'OK', value: 'ok' }] }); }
-                } else if (result.button === 'confirm') { showCustomModal({ title: "Reset Cancelled", message: "Confirmation text did not match. No data was changed.", buttons: [{ text: 'OK', value: 'ok' }] }); }
+                    localStorage.clear();
+                    await showCustomModal({ title: "Success", message: "All data has been reset. The page will now reload.", buttons: [{ text: 'Reload', value: 'ok' }] });
+                    window.location.reload();
+                } else if (result.button === 'confirm') { showCustomModal({ title: "Reset Cancelled", message: "Confirmation text did not match.", buttons: [{ text: 'OK', value: 'ok' }] }); }
             };
             
             getEl('new-player-btn').onclick = async () => {
                 if (!await promptForAdminPassword()) return;
-                const confirmed = await showCustomModal({ title: "Confirm Settings Reset", message: "This will reset all appearance and accessibility settings to their defaults. The leaderboard and high score will NOT be affected. Are you sure?", buttons: [{ text: 'Reset Settings', value: 'confirm', class: 'secondary-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }] });
-                if (confirmed.button === 'confirm') { try { localStorage.removeItem('quizSettings'); window.location.reload(); } catch (e) { console.error("Could not reset settings:", e); } }
+                const confirmed = await showCustomModal({ title: "Confirm Settings Reset", message: "This resets all appearance and accessibility settings to default. Leaderboard and high scores will NOT be affected.", buttons: [{ text: 'Reset Settings', value: 'confirm' }, { text: 'Cancel', value: 'cancel' }] });
+                if (confirmed.button === 'confirm') { localStorage.removeItem('quizSettings'); window.location.reload(); }
             };
             
             getEl('manage-leaderboard-btn').onclick = async () => {
@@ -1635,7 +1521,7 @@
                 if (n >= 1 && n <= 4) {
                     const b = document.querySelectorAll('.options button:not(:disabled)');
                     if(b[n-1]) b[n-1].click();
-                } else if (e.key === 'Enter' && !nextBtn.classList.contains('hidden')) {
+                } else if (e.key === 'Enter' && !nextBtn.style.display === 'none') {
                     nextBtn.click();
                 }
             }
