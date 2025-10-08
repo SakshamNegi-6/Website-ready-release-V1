@@ -1,519 +1,1657 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Cyber Security Quiz</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-<style>
-:root {
-  --primary-dark:#0d1b2a;
-  --primary-light:#111827;
-  --accent-glow:#00aaff;
-  --accent-alt:#41e0c3;
-  --accent-gold:#ffd700;
-  --accent-silver:#c0c0c0;
-  --accent-bronze:#cd7f32;
-  --text-primary:#e0e1dd;
-  --text-secondary:#a8b2d1;
-  --glow-correct:#41e0c3;
-  --glow-incorrect:#ff4d79;
-}
-* { box-sizing:border-box; }
-html, body { height:100%; }
-body {
-  margin:0;
-  padding:20px;
-  font-family:'Poppins',sans-serif;
-  background:var(--primary-dark);
-  color:var(--text-primary);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-}
-.container {
-  width:94%;
-  max-width:980px;
-  background:var(--primary-light);
-  padding:26px;
-  border-radius:14px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.45);
-}
-.logo {
-  width:84px;height:84px;margin:0 auto 10px;border-radius:12px;
-  background:linear-gradient(135deg,var(--accent-glow),var(--accent-alt));
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Orbitron',sans-serif;color:#071426;font-weight:700;font-size:26px;
-}
-h1 {font-family:'Orbitron',sans-serif;color:var(--accent-gold);text-align:center;margin:6px 0}
-h2 {font-size:16px;color:var(--text-secondary);text-align:center;margin:6px 0 16px 0}
-.actions {display:flex;justify-content:center;gap:12px;margin-top:14px}
-button {cursor:pointer;border-radius:10px;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;background:transparent;color:var(--text-primary);font-weight:600;transition: background-color 0.2s, color 0.2s;}
-button:disabled {cursor:not-allowed;opacity:0.5;}
-.main-btn {background:var(--accent-gold);color:#111;border:none;padding:10px 18px}
-.secondary-btn {border:1px solid var(--accent-alt);color:var(--accent-alt);background:transparent;padding:9px 14px}
-.secondary-btn:hover:not(:disabled) {background-color:var(--accent-alt);color:var(--primary-dark);}
-.hidden {display:none}
-.leaderboard {margin-top:18px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.04);text-align:left}
-.leaderboard-item {display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.03)}
-.medal-gold {color:var(--accent-gold);font-weight:700}
-.medal-silver {color:var(--accent-silver);font-weight:700}
-.medal-bronze {color:var(--accent-bronze);font-weight:700}
-
-#quiz-area,#results-area {display:none}
-.question {font-size:20px;font-weight:700;margin:12px 0}
-.options {display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.option-btn {padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);text-align:left}
-.option-btn:hover:not(:disabled) {background:rgba(255,255,255,0.04)}
-.option-btn.correct {background:rgba(65,224,195,0.12);border-color:var(--glow-correct);color:var(--text-primary);}
-.option-btn.incorrect {background:rgba(255,77,121,0.12);border-color:var(--glow-incorrect);color:var(--text-primary);}
-#progress-wrap {width:100%;background:rgba(0,0,0,0.2);height:10px;border-radius:8px;margin-top:12px}
-#progress-bar {height:100%;width:0%;background:linear-gradient(90deg,var(--accent-glow),var(--accent-alt));border-radius:8px;transition:width .25s}
-#timer-display {font-family:'Orbitron',sans-serif;color:var(--accent-alt);text-align:center;margin-top:10px;height:20px;}
-
-.modal {position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);z-index:1000}
-.modal-box {background:var(--primary-light);padding:22px;border-radius:12px;max-width:700px;width:92%;color:var(--text-primary)}
-.modal-title {font-family:'Orbitron',sans-serif;color:var(--accent-glow);font-size:20px;margin-bottom:12px;text-align:center}
-
-.small-note {font-size:13px;color:var(--text-secondary)}
-.footer {display:flex;justify-content:center;gap:12px;margin-top:18px}
-@media(max-width:600px){.container{padding:16px}.logo{width:64px;height:64px;font-size:20px}.question{font-size:18px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Security Quiz</title>
+  <meta name="description" content="An interactive and educational Cyber Security Quiz." />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --primary-dark: #0d1b2a;
+      --primary-light: #1b263b;
+      --accent-glow: #00aaff;
+      --accent-alt: #41e0c3;
+      --accent-gold: #ffd700;
+      --accent-silver: #c0c0c0;
+      --accent-bronze: #cd7f32;
+      --text-primary: #e0e1dd;
+      --text-secondary: #a8b2d1;
+      --glow-correct: #41e0c3;
+      --glow-incorrect: #ff4d79;
+      --star-color: #fff;
+    }
+    body.light-theme {
+      --primary-dark: #fdf6e3;
+      --primary-light: #fdf6e3;
+      --text-primary: #586e75;
+      --text-secondary: #839496;
+      --accent-glow: #268bd2;
+      --accent-alt: #2aa198;
+      --accent-gold: #b58900;
+      --glow-correct: #859900;
+      --glow-incorrect: #dc322f;
+      --star-color: #93a1a1;
+      background-color: var(--primary-dark);
+    }
+    body.light-theme .container {
+        background: #eee8d5;
+        border-color: #93a1a1;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    }
+    body.light-theme h1 { color: var(--accent-gold); }
+    body.light-theme h2, body.light-theme h3 { color: var(--text-primary);
+    }
+    body.light-theme .logo {
+        background: linear-gradient(135deg, var(--accent-glow), var(--accent-alt));
+        color: var(--primary-dark);
+    }
+    body.light-theme .options button {
+        background: #fdf6e3;
+        border-color: #eee8d5;
+        color: var(--text-primary);
+    }
+    body.light-theme .options button:not(:disabled):hover,
+    body.light-theme .options button:focus {
+        background: #eee8d5;
+        border-color: var(--accent-alt);
+    }
+    body.light-theme #progress-bar-container { background: #eee8d5;
+    }
+    body.light-theme .explanation,
+    body.light-theme .score-breakdown,
+    body.light-theme .leaderboard li,
+    body.light-theme #save-score-area,
+    body.light-theme #high-score-area {
+        background: #fdf6e3;
+        border: 1px solid #eee8d5;
+    }
+    body.light-theme #save-score-area input,
+    body.light-theme .modal-input,
+    body.light-theme .settings-row select {
+        background: #fdf6e3;
+        color: var(--text-primary);
+        border: 1px solid #93a1a1;
+    }
+    body.light-theme .thank-you-message,
+    body.light-theme #review-header { border-color: #eee8d5;
+    }
+    body.light-theme .slider { background-color: #93a1a1; }
+    body.light-theme .main-btn {
+        background-color: var(--accent-gold);
+        color: #fdf6e3;
+    }
+    body.light-theme .main-btn:hover {
+        background-color: #cb9d00;
+        box-shadow: 0 0 20px #cb9d00;
+    }
+    body.light-theme .secondary-btn, body.light-theme .welcome-options button, body.light-theme .settings-row button, body.light-theme #hint-btn {
+        color: var(--accent-glow);
+        border-color: var(--accent-glow);
+    }
+    body.light-theme .secondary-btn:hover, body.light-theme .welcome-options button:hover, body.light-theme .settings-row button:hover, body.light-theme #hint-btn:hover {
+        background: var(--accent-glow);
+        color: var(--primary-dark);
+    }
+    body.light-theme .settings-row button.danger {
+        border-color: var(--glow-incorrect);
+        color: var(--glow-incorrect);
+    }
+    body.light-theme .settings-row button.danger:hover {
+        background: var(--glow-incorrect);
+        color: var(--primary-dark);
+    }
+    body.light-theme .danger-btn {
+        border-color: var(--glow-incorrect);
+        color: var(--glow-incorrect);
+    }
+    body.light-theme .danger-btn:hover {
+        background: var(--glow-incorrect);
+        color: var(--primary-dark);
+    }
+    body {
+      margin: 0; padding: 20px 0; font-family: 'Poppins', sans-serif;
+      color: var( --text-primary); text-align: center; min-height: 100vh;
+      display: flex; align-items: center;
+      justify-content: center; flex-direction: column;
+      background-color: var(--primary-dark);
+      cursor: auto;
+      transition: background-color 0.5s, color 0.5s;
+      box-sizing: border-box;
+    }
+    h1, h2, h3, p, label, .question {
+        transition: color 0.5s ease;
+    }
+    body.high-contrast { --primary-dark: #000; --primary-light: #111; --text-primary: #fff; --text-secondary: #ddd; background-color: #000;
+    }
+    body.large-text { font-size: 18px; }
+    .hidden { display: none;
+    }
+    body.reduce-motion * {
+        animation-duration: 0.01s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01s !important;
+        scroll-behavior: auto !important;
+    }
+    body.reduce-motion #starfield-canvas, body.reduce-motion .scroll-down-arrow { display: none;
+    }
+    body.reduce-motion .medal-display {
+      animation: none !important;
+    }
+    #background-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    }
+    #starfield-canvas { width: 100%; height: 100%; transition: opacity 0.5s;
+    }
+    body.minimal-bg #starfield-canvas { opacity: 0; }
+    .screen-flash { position: fixed; top: 0;
+      left: 0; width: 100%; height: 100%; z-index: 999; pointer-events: none; opacity: 0;
+    }
+    .screen-flash.correct { background: radial-gradient(circle, rgba(65, 224, 195, 0.3) 0%, transparent 70%); animation: flash 0.5s ease-out;
+    }
+    .screen-flash.incorrect { background: radial-gradient(circle, rgba(255, 77, 121, 0.3) 0%, transparent 70%); animation: flash 0.5s ease-out;
+    }
+    @keyframes flash { from { opacity: 1; } to { opacity: 0;
+    } }
+    #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--primary-dark);
+      display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out, visibility 0.5s ease-out, background-color 0.5s;
+    }
+    #splash-title { font-size: clamp(32px, 5vw, 70px); font-family: 'Orbitron', sans-serif; color: var(--accent-gold); text-shadow: 0 0 20px var(--accent-gold);
+      animation: pulse 2s infinite ease-in-out; }
+    @keyframes pulse { 0% { transform: scale(1);
+    } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    .header { margin-bottom: 20px;
+    }
+    .logo { width: 80px; height: 80px; margin: 0 auto 15px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-glow), var(--accent-alt));
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 28px; font-family: 'Orbitron', sans-serif; color: var(--primary-dark);
+      box-shadow: 0 6px 20px rgba(65, 224, 195, 0.2); transition: color 0.5s, background 0.5s;
+    }
+    h1 { font-size: 28px; font-family: 'Orbitron', sans-serif; color: var(--accent-gold); text-shadow: 0 0 10px var(--accent-gold); margin: 0;
+      letter-spacing: 0.5px; }
+    h2 { font-size: 22px; margin: 15px 0; font-weight: 400; color: var(--text-primary);
+    }
+    .container {
+      background: var(--primary-light);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      width: 90%; max-width: 700px;
+      padding: 30px; border-radius: 20px; z-index: 1;
+      position: relative;
+      transition: border-color 0.5s, box-shadow 0.5s, background-color 0.5s;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    #welcome-container p { color: var(--text-secondary); line-height: 1.6;
+    }
+    .welcome-options { margin-top: 25px; display: flex; justify-content: center; gap: 15px;
+    }
+    .welcome-options button { background: none; border: 1px solid var(--accent-alt); color: var(--accent-alt); padding: 8px 16px; font-size: 14px;
+      border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+    .welcome-options button:hover { background: var(--accent-alt); color: var(--primary-dark);
+      box-shadow: 0 0 15px var(--accent-alt); }
+    .quiz-header { display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;}
+    #streak-counter { font-family: 'Orbitron', sans-serif; color: var(--accent-gold); font-size: 16px; visibility: hidden; opacity: 0;
+      transition: all 0.3s; }
+    #streak-counter.visible { visibility: visible; opacity: 1;
+    }
+    #hint-btn { background: none; border: 1px solid var(--accent-alt); color: var(--accent-alt); padding: 6px 12px; font-size: 14px;
+      border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+    #hint-btn:disabled { opacity: 0.4; cursor: not-allowed;
+    }
+    #round-title { font-family: 'Orbitron', sans-serif; margin: 10px 0;
+    }
+    #round-title.animate-in { animation: neon-flicker 1.5s ease-in-out;
+    }
+    @keyframes neon-flicker { 0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent-alt);
+    } 50% { opacity: 0.7; text-shadow: none; } }
+    #progress-bar-container { width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px;
+      height: 10px; margin-bottom: 20px; overflow: hidden; transition: background-color 0.5s; }
+    #progress-bar { height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent-glow), var(--accent-alt)); border-radius: 10px; transition: width 0.5s ease-in-out; }
+    #progress-bar.hard-mode-progress { background: linear-gradient(90deg, #ff4d79, #ff7a9e);
+    }
+    .question { font-size: 24px; font-weight: 600; margin: 15px 0 25px 0;
+    }
+    .options button { display: block; width: 100%; margin: 10px 0; padding: 15px;
+      background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; font-size: 16px; cursor: pointer;
+      transition: all 0.3s; }
+    .options button:not(:disabled):hover, .options button:focus { background: rgba(0, 229, 255, 0.2); border-color: var(--accent-glow);
+      box-shadow: 0 0 15px var(--accent-glow); transform: scale(1.02); outline: none; }
+    .options button.correct { background: rgba(65, 224, 195, 0.2);
+      border-color: var(--glow-correct); }
+    .options button.incorrect { background: rgba(255, 77, 121, 0.2); border-color: var(--glow-incorrect);
+    }
+    .options button.hint-removed { opacity: 0.3; pointer-events: none;
+    }
+    #feedback-area {
+        min-height: 30px; margin-top: 15px; font-size: 20px;
+        font-weight: 600;
+        opacity: 0;
+    }
+    #feedback-area.visible { animation: feedback-pop-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    #feedback-area.correct { color: var(--glow-correct); }
+    #feedback-area.incorrect { color: var(--glow-incorrect);
+    }
+    @keyframes feedback-pop-in {
+        0% { transform: scale(0.8); opacity: 0;
+        }
+        70% { transform: scale(1.05); opacity: 1;
+        }
+        100% { transform: scale(1); opacity: 1;
+        }
+    }
+    .main-btn { margin-top: 20px; padding: 12px 30px; font-size: 18px; border: none;
+      border-radius: 10px; background: var(--accent-gold); color: black; font-weight: bold; cursor: pointer; transition: all 0.3s ease;
+    }
+    #next-btn { display: none; }
+    .main-btn:hover { background: #ffc400; transform: scale(1.05);
+      box-shadow: 0 0 20px #ffc400; }
+    .secondary-btn {
+        background: none;
+        border: 1px solid var(--accent-alt);
+        color: var(--accent-alt);
+        padding: 12px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .secondary-btn:hover {
+        background: var(--accent-alt);
+        color: var(--primary-dark);
+        box-shadow: 0 0 15px var(--accent-alt);
+    }
+    .danger-btn {
+        background: none;
+        border: 1px solid var(--glow-incorrect);
+        color: var(--glow-incorrect);
+        padding: 12px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .danger-btn:hover {
+        background: var(--glow-incorrect);
+        color: var(--primary-dark);
+        box-shadow: 0 0 15px var(--glow-incorrect);
+    }
+    #quiz-container.hard-mode {
+      border-color: rgba(255, 77, 121, 0.5);
+      animation: pulse-border 1.5s infinite;
+    }
+    @keyframes pulse-border {
+      0% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      50% { box-shadow: 0 8px 40px 0 rgba(255, 77, 121, 0.5);
+      }
+      100% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+    }
+    #timer-bar-container {
+        width: 100%;
+        background: rgba(0,0,0,0.3); border-radius: 10px;
+        height: 10px; margin-top: 20px; overflow: hidden; display: none;
+        position: relative;
+    }
+    #timer-bar {
+        height: 100%; width: 100%;
+        background: linear-gradient(90deg, #ff4d79, #ff7a9e);
+        border-radius: 10px;
+    }
+    #timer-text {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        font-family: 'Orbitron', sans-serif;
+        color: var(--text-primary);
+        font-weight: bold;
+    }
+    .results-buttons { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;
+    }
+    #achievements-earned { margin-top: 20px; }
+    #achievements-earned h3 { font-family: 'Orbitron', sans-serif; color: var(--accent-alt);
+    }
+    .achievement-list { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+    }
+    .achievement-badge { background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--accent-alt); font-size: 14px;
+    }
+    .medal-display {
+        width: 150px; height: 150px; margin: 20px auto;
+        display: flex; align-items: center; justify-content: center;
+        border: 5px solid; border-radius: 50%;
+        animation: 2s infinite ease-in-out;
+        transition: border-color 0.5s;
+    }
+    .medal-display.gold { border-color: var(--accent-gold); animation-name: pulse-glow-gold; }
+    .medal-display.silver { border-color: var(--accent-silver); animation-name: pulse-glow-silver;
+    }
+    .medal-display.bronze { border-color: var(--accent-bronze); animation-name: pulse-glow-bronze; }
+    .medal-display span { font-size: 100px;
+    }
+    @keyframes pulse-glow-gold {
+        0% { box-shadow: 0 0 30px var(--accent-gold);
+        }
+        50% { box-shadow: 0 0 50px #fff;
+        }
+        100% { box-shadow: 0 0 30px var(--accent-gold);
+        }
+    }
+    @keyframes pulse-glow-silver {
+        0% { box-shadow: 0 0 30px var(--accent-silver);
+        }
+        50% { box-shadow: 0 0 50px #e6e8fa;
+        }
+        100% { box-shadow: 0 0 30px var(--accent-silver);
+        }
+    }
+    @keyframes pulse-glow-bronze {
+        0% { box-shadow: 0 0 30px var(--accent-bronze);
+        }
+        50% { box-shadow: 0 0 50px #f0e68c;
+        }
+        100% { box-shadow: 0 0 30px var(--accent-bronze);
+        }
+    }
+    #score-display-area { margin: 20px 0; font-family: 'Poppins', sans-serif;
+    }
+    .score-breakdown {
+        background: rgba(0,0,0,0.2);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-align: left;
+        font-size: 18px;
+    }
+    .score-breakdown > div {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .score-breakdown > div:last-child {
+        border-bottom: none;
+        padding-top: 8px;
+        margin-top: 4px;
+    }
+    .score-value { font-weight: 700; font-family: 'Orbitron', sans-serif;
+    }
+    .score-value.final { color: var(--accent-gold); font-size: 24px; }
+    .score-value.bonus-positive { color: var(--glow-correct);
+    }
+    .score-value.bonus-negative { color: var(--glow-incorrect); }
+    .final-badge { font-size: 24px; font-weight: bold; color: var(--accent-gold);
+    }
+    .thank-you-message { margin-top: 30px; font-size: 14px; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;
+    }
+    #review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    #review-header h3 {
+        margin: 0;
+        font-family: 'Orbitron', sans-serif;
+        color: var(--accent-alt);
+    }
+    #review-nav button {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-primary);
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    #review-nav button:hover:not(:disabled) {
+        background: var(--accent-alt);
+        color: var(--primary-dark);
+    }
+    #review-nav button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    #review-content {
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 15px;
+    }
+    .review-question { font-weight: 600; font-size: 18px; margin-top: 0;
+    }
+    .review-hard-mode-label {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--glow-incorrect);
+        font-size: 12px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    .review-answers p { margin: 8px 0; padding: 12px; border-radius: 8px; position: relative;
+      padding-left: 40px; }
+    .review-answers p::before { font-family: sans-serif; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 20px; }
+    .user-answer.is-incorrect { background: rgba(255, 77, 121, 0.15); border: 1px solid var(--glow-incorrect);
+    }
+    .user-answer.is-incorrect::before { content: '✖'; }
+    .user-answer.is-correct::before { content: '✔';
+    }
+    .user-answer.is-correct, .correct-answer { background: rgba(65, 224, 195, 0.15); border: 1px solid var(--glow-correct);
+    }
+    .correct-answer::before { content: '✔'; }
+    .explanation { font-size: 14px; background: rgba(0,0,0,0.2); padding: 10px;
+      border-radius: 5px; margin-top: 10px; line-height: 1.5; border-left: 3px solid var(--accent-glow); }
+    .key-tip { font-style: italic;
+      background: rgba(65, 224, 195, 0.1); padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 3px solid var(--accent-alt);
+    }
+    .scroll-down-arrow {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        width: 24px;
+        height: 24px;
+        border-left: 3px solid var(--accent-alt);
+        border-bottom: 3px solid var(--accent-alt);
+        transform: translateX(-50%) rotate(-45deg);
+        animation: bounce 2s infinite;
+        opacity: 1;
+        transition: opacity 0.5s;
+        z-index: 10;
+        cursor: pointer;
+    }
+    .scroll-down-arrow.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0) rotate(-45deg);
+        }
+        40% { transform: translateX(-50%) translateY(-10px) rotate(-45deg);
+        }
+        60% { transform: translateX(-50%) translateY(-5px) rotate(-45deg);
+        }
+    }
+    #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease-in-out;
+      z-index: 1000; }
+    #modal-overlay.show { opacity: 1; pointer-events: auto;
+    }
+    #modal-content { 
+        text-align: left; line-height: 1.6;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    #modal-content h2, #modal-content h3 { text-align: center; font-family: 'Orbitron', sans-serif; color: var(--accent-alt); font-size: 24px;
+      text-shadow: 0 0 10px var(--accent-alt);}
+    #modal-content h3 { font-size: 20px; margin-top: 25px;
+    }
+    #modal-content ul { list-style-position: inside; }
+    #modal-content li { margin-bottom: 8px;
+    }
+    #modal-content a { color: var(--accent-alt); text-decoration: none; }
+    #modal-content a:hover { text-decoration: underline;
+    }
+    .modal-close-btn {
+        position: absolute; top: 15px; right: 20px;
+        font-size: 28px;
+        color: var(--text-secondary); background: none; border: none;
+        cursor: pointer; transition: color 0.3s, transform 0.3s;
+    }
+    .modal-close-btn:hover { color: var(--text-primary); transform: scale(1.1); }
+    .modal-buttons { display: flex; justify-content: center;
+      gap: 15px; margin-top: 25px; }
+    .modal-input {
+        display: block;
+        width: calc(100% - 20px); margin: 20px auto 0; padding: 10px;
+        border-radius: 8px; border: 1px solid var(--accent-alt);
+        background: rgba(0,0,0,0.3); color: var(--text-primary);
+        font-size: 16px;
+    }
+    .settings-row { display: flex; justify-content: space-between; align-items: center; margin: 15px 0;
+    }
+    .settings-row button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--accent-alt);
+        background: none;
+        color: var(--accent-alt);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+     .settings-row button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        border-color: var(--text-secondary);
+        color: var(--text-secondary);
+    }
+    .settings-row button:hover:not(:disabled) {
+        background: var(--accent-alt);
+        color: var(--primary-dark);
+    }
+    .settings-row button.danger {
+        border-color: var(--glow-incorrect);
+        color: var(--glow-incorrect);
+    }
+    .settings-row button.danger:hover:not(:disabled) {
+        background: var(--glow-incorrect);
+        color: var(--primary-dark);
+    }
+    .settings-row select {
+        background: rgba(0,0,0,0.3);
+        color: var(--text-primary);
+        border: 1px solid var(--accent-alt);
+        padding: 5px 8px;
+        border-radius: 5px;
+    }
+    .switch { position: relative; display: inline-block;
+      width: 50px; height: 28px; }
+    .switch input { opacity: 0; width: 0; height: 0;
+    }
+    .switch input:disabled + .slider {
+        cursor: not-allowed;
+        background-color: #555;
+    }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333;
+      transition: .4s; border-radius: 28px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px;
+      bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent-alt);
+    }
+    input:checked + .slider:before { transform: translateX(22px);
+    }
+    #round-intro-banner {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(13, 27, 42, 0.9);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 999;
+        opacity: 0; visibility: hidden; pointer-events: none;
+        transition: opacity 0.5s ease, visibility 0.5s;
+    }
+    #round-intro-banner.show { opacity: 1;
+      visibility: visible; pointer-events: auto; }
+    #round-intro-banner h3 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(30px, 6vw, 80px);
+        color: var(--accent-alt); text-shadow: 0 0 10px var(--accent-alt), 0 0 25px var(--accent-alt), 0 0 50px var(--accent-alt);
+        animation: banner-flicker 2s infinite alternate;
+    }
+    #round-intro-banner p { font-size: 1.5rem; color: var(--text-secondary); margin-top: 0;
+    }
+    @keyframes banner-flicker {
+        0%, 18%, 22%, 25%, 53%, 57%, 100% {
+            text-shadow: 0 0 10px var(--accent-alt), 0 0 25px var(--accent-alt), 0 0 50px var(--accent-alt);
+        }
+        20%, 24%, 55% { text-shadow: none;
+        }
+    }
+    #copyright-text {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.7;
+      z-index: 10;
+    }
+    .leaderboard {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        text-align: left;
+    }
+    .leaderboard h3 {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--accent-alt);
+        margin: 0 0 15px 0;
+        text-align: center;
+    }
+    .leaderboard ol {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .leaderboard li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+        background: rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .leaderboard li:hover {
+        background: rgba(65, 224, 195, 0.1);
+    }
+    .leaderboard li:nth-child(1) { background: rgba(255, 215, 0, 0.1);
+    }
+    .leaderboard li:nth-child(2) { background: rgba(192, 192, 192, 0.1);
+    }
+    .leaderboard li:nth-child(3) { background: rgba(205, 127, 50, 0.1);
+    }
+    .leaderboard .score {
+        font-weight: 700;
+        color: var(--accent-gold);
+    }
+    #save-score-area {
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 15px;
+    }
+    #save-score-area input {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--accent-alt);
+        background: rgba(0,0,0,0.3);
+        color: var(--text-primary);
+        font-size: 16px;
+        margin-right: 10px;
+    }
+    #save-score-area button {
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        background: var(--accent-alt);
+        color: var(--primary-dark);
+        font-weight: 700;
+        cursor: pointer;
+    }
+    #high-score-area {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        background: rgba(0,0,0,0.2);
+    }
+    #high-score-area .new-high-score {
+        color: var(--accent-gold);
+        font-weight: bold;
+        animation: pulse 1.5s infinite;
+    }
+  </style>
 </head>
 <body>
-  <div id="welcome" class="container">
-    <div class="logo">CSQ</div>
-    <h1>Cyber Security Quiz</h1>
-    <h2 class="small-note">Play, learn, and protect your digital life.</h2>
-    <div class="actions">
-      <button id="start" class="main-btn">Start Quiz</button>
-      <button id="settings" class="secondary-btn">Settings</button>
-      <button id="about" class="secondary-btn">About</button>
-    </div>
-    <div class="leaderboard">
-      <h3>Top 5</h3>
-      <div id="leaderboard-list"></div>
-    </div>
-  </div>
+  <div id="background-wrapper"><canvas id="starfield-canvas"></canvas></div>
+  <div class="screen-flash"></div>
 
-  <div id="quiz-area" class="container">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 id="round-title" class="small-note" style="margin:0;"></h2>
-      <button id="hint" class="secondary-btn">Hint (1)</button>
-    </div>
-    <div class="question" id="question-text"></div>
-    <div id="options" class="options"></div>
-    <div id="progress-wrap"><div id="progress-bar"></div></div>
-    <div id="timer-display"></div>
-    <div class="footer">
-      <button id="next" class="main-btn hidden">Next</button>
-      <button id="quit" class="secondary-btn">Quit</button>
-    </div>
-  </div>
+  <audio id="correct-sound" src="https://files.catbox.moe/zedn39.mp3" preload="auto"></audio>
+  <audio id="incorrect-sound" src="https://files.catbox.moe/bg1yxl.mp3" preload="auto"></audio>
 
-  <div id="results-area" class="container">
-    <h2>Results</h2>
-    <div id="score-area"></div>
-    <p id="position-msg" class="small-note"></p>
-    <div id="results-leaderboard"></div>
-    <div class="footer">
-      <button id="review" class="secondary-btn">Review</button>
-      <button id="home" class="main-btn">Go Home</button>
-    </div>
-  </div>
+  <div id="splash-screen"><h1 id="splash-title">Cyber Security Quiz</h1></div>
 
-  <div id="hard-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="hard-modal-title">
-    <div class="modal-box">
-      <div id="hard-modal-title" class="modal-title">⚡ Special Round: Hard Mode ⚡</div>
-      <div id="hard-instructions"></div>
-      <div style="text-align:center;margin-top:14px">
-        <button id="start-hard" class="main-btn">Start Round</button>
+  <div id="welcome-container" class="container">
+     <div class="header">
+        <div class="logo">CSQ</div>
+        <h1>Cyber Security Quiz</h1>
       </div>
-    </div>
+      <h2>A Fun Cyber Safety Challenge for Families</h2>
+      <p>Enhance your knowledge of online safety through 4 rounds. Our goal is to empower you to protect your family in the digital world.</p>
+      <button id="start-btn" class="main-btn" tabindex="0" aria-label="Start Quiz">Start Quiz</button>
+      <div class="welcome-options">
+        <button id="settings-btn" tabindex="0">⚙️ Settings</button>
+        <button id="about-btn" tabindex="0">ℹ️ About</button>
+      </div>
+      <div id="leaderboard-area" class="leaderboard"></div>
   </div>
 
-  <div id="generic-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="generic-modal-title">
-    <div class="modal-box">
-        <div id="generic-modal-title" class="modal-title"></div>
-        <div id="generic-content"></div>
-        <div style="text-align:center;margin-top:12px">
-            <button id="close-generic" class="main-btn">Close</button>
-        </div>
-    </div>
+  <div id="quiz-container" class="container hidden">
+      <div class="quiz-header">
+        <span id="streak-counter"></span>
+        <button id="hint-btn">💡 Hint</button>
+      </div>
+      <h3 id="round-title"></h3>
+      <div id="progress-bar-container"><div id="progress-bar"></div></div>
+      <div id="question-area">
+          <p class="question" id="question"></p>
+          <div class="options" id="options"></div>
+          <div id="feedback-area" role="alert" aria-live="assertive"></div>
+          <div id="timer-bar-container">
+            <div id="timer-bar"></div>
+            <span id="timer-text"></span>
+          </div>
+      </div>
+      <button id="next-btn" class="main-btn" aria-label="Next Question">Next</button>
   </div>
 
-  <audio id="snd-correct" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f8b4c31f43.mp3?filename=correct-2-46134.mp3" preload="auto"></audio>
-  <audio id="snd-wrong"   src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_43f00a76e0.mp3?filename=error-126627.mp3" preload="auto"></audio>
+  <div id="results-container" class="container hidden">
+      <div class="medal-display" id="medal-display"></div>
+      <p class="final-badge" id="final-badge"></p>
+      <div id="achievements-earned"></div>
+      <div id="score-display-area"></div>
+      <div id="high-score-area"></div>
+      <div id="results-leaderboard-area" class="leaderboard"></div>
+      <div id="save-score-area" class="hidden"></div>
+      <div class="results-buttons">
+        <button id="review-btn" class="main-btn" tabindex="0">🔍 Review Answers</button>
+        <button id="go-home-btn" class="main-btn" tabindex="0">🏠 Go Home</button>
+      </div>
+      <div class="thank-you-message" id="thank-you-message"></div>
+      <div id="scroll-indicator" class="scroll-down-arrow hidden"></div>
+  </div>
 
-<script>
-'use strict';
-// =================================================================
-// CONFIGURATION & QUESTION BANKS
-// =================================================================
-let hardModeTimer = Number(localStorage.getItem('hardModeTimer') || 15);
-const QUIZ_LENGTH = 20; // Number of normal questions to start with
+  <div id="modal-overlay">
+      <div id="modal-content" class="container" role="dialog" aria-modal="true" aria-labelledby="modal-title-id"></div>
+  </div>
 
-const MASTER_NORMAL = [
-  { q:"What is phishing?", opts:["An attack that tricks people into revealing information","A tool for encrypting emails","A method to repair software","A firewall setting"], correct:0 },
-  { q:"Strong passwords should include what?", opts:["Only letters","Only numbers","A mix of letters, numbers, and symbols","Just your name"], correct:2 },
-  { q:"Which of these is a type of malware?", opts:["Trojan horse","Firewall","Two-factor authentication","VPN"], correct:0 },
-  { q:"What does HTTPS in a URL mean?", opts:["The connection is secure and encrypted","The website is fast","The site has high-definition text","The site is a host"], correct:0 },
-  { q:"What is the safest way to browse on public Wi-Fi?", opts:["Using a VPN","Turning off your firewall","Sharing files directly","Logging into sensitive accounts"], correct:0 },
-  { q:"What should you do with a suspicious email link?", opts:["Click it to see where it goes","Report it or delete it","Forward it to all your friends","Reply to the sender"], correct:1 },
-  { q:"What is two-factor authentication (2FA)?", opts:["Using one very long password","A double-length password","An extra security step, like a code from your phone","A guest login mode"], correct:2 },
-  { q:"What software protects your computer from viruses?", opts:["Antivirus software","A malware app","A photo editor","A video player"], correct:0 },
-  { q:"Which is an example of social engineering?", opts:["Someone calling you pretending to be tech support","A virus hidden in a program's code","A software update patch","A hardware malfunction"], correct:0 },
-  { q:"What is the best practice for software updates?", opts:["Update them regularly","Never update them","Disable all update notifications","Only update them once a year"], correct:0 },
-  { q:"Ransomware is a type of malware that...", opts:["Locks your files and demands payment to unlock them","Sends spam emails from your account","Improves your computer's speed","Automatically backs up your data"], correct:0 },
-  { q:"A password manager is a tool that helps you...", opts:["Securely store and generate strong, unique passwords","Share your passwords with friends easily","Bypass website security","Avoid using antivirus software"], correct:0 },
-  { q:"What is a VPN (Virtual Private Network) mainly used for?", opts:["Encrypting your internet connection for privacy","Making your games run faster","Getting free cloud storage","Blocking all text messages"], correct:0 },
-  { q:"How can you identify a secure website?", opts:["It has a padlock icon and starts with HTTPS","It has bright colors and animations","It has many advertisements","It has a very long URL"], correct:0 },
-  { q:"What is the main function of a firewall?", opts:["To block unauthorized network access","To increase your internet speed","To store your important files","To repair your computer's hardware"], correct:0 },
-  { q:"You should avoid using public computers for...", opts:["Online banking","Reading the news","Watching videos","Checking the weather"], correct:0 },
-  { q:"Spyware is a type of malware designed to...", opts:["Secretly monitor your activity and steal information","Protect your personal files","Improve your computer's graphics","Clean up your computer's memory"], correct:0 },
-  { q:"What is a digital footprint?", opts:["The trail of data you leave behind online","A log file from an antivirus scan","Your monthly internet bill","A backup of your phone's data"], correct:0 },
-  { q:"What is a brute-force attack?", opts:["Trying many passwords to guess the correct one","Using a firewall to block traffic","Encrypting your hard drive","Physically breaking a computer"], correct:0 },
-  { q:"The safest place to download apps for your phone is...", opts:["The official app store (e.g., Google Play, Apple App Store)","A link sent to you by a stranger","A pop-up advertisement","An unofficial third-party website"], correct:0 }
-];
+  <div id="round-intro-banner"></div>
 
-const MASTER_HARD_MODE = [
-  { q:"A 'Zero-Day' vulnerability is a security flaw that is...", opts:["Patched","Found only in mobile apps","Known for a long time","Unknown to the vendor and actively exploited"], correct:3, type:"hard", explanation:"A zero-day is a flaw the software maker is unaware of, making it highly dangerous." },
-  { q:"What is 'SQL injection'?", opts:["A database attack using malicious SQL code","A secure login method","An encryption technique","An antivirus feature"], correct:0, type:"hard", explanation:"SQL injection inserts malicious SQL into queries to manipulate a database." },
-  { q:"What is 'Smishing'?", opts:["A type of computer virus","A phishing scam conducted via SMS/text message","A secure messaging app","A new social media platform"], correct:1, type:"hard", explanation:"Smishing is a portmanteau of 'SMS' and 'phishing'." },
-  { q:"What is 'fileless malware'?", opts:["Malware that runs in memory without writing files to disk","Malware that only affects image files","A type of safe software","A cloud storage solution"], correct:0, type:"hard", explanation:"Fileless malware is hard to detect because it lives in RAM and leaves no files on the disk." },
-  { q:"The principle of 'least privilege' in cybersecurity means...", opts:["Users should only have access to what they need","Using the weakest possible passwords","Giving everyone administrator access","Disabling the firewall"], correct:0, type:"hard", explanation:"This principle minimizes potential damage from a compromised account." },
-  { q:"What is a 'man-in-the-middle' attack?", opts:["An attack where a proxy is used for safety","An attacker secretly intercepts communication between two parties","A type of advanced firewall","A secure messaging protocol"], correct:1, type:"hard", explanation:"The attacker can eavesdrop or alter communications between the two victims." }
-];
+  <div id="copyright-text"></div>
 
-// =================================================================
-// STATE MANAGEMENT
-// =================================================================
-const state = {
-    quizData: [],
-    currentQuestion: 0,
-    score: 0,
-    userAnswers: [],
-    leaderboard: JSON.parse(localStorage.getItem('leaderboard') || '[]'),
-    hardModeTriggers: [],
-    hardModeActive: false,
-    hintUsed: false,
-    timerId: null
-};
+  <script>
+    /*
+        Cyber Security Quiz - v30.0 FINAL (Oct 8, 2025)
+        - This is the definitive, corrected, and feature-complete version.
+        - Implemented Dynamic Difficulty Adjustment.
+        - Includes all previous bug fixes, accessibility enhancements, and features.
+    */
+    const MASTER_QUIZ_DATA = [
+        { question: "A 'phishing' email is designed to...", options: ["Trick you into revealing personal information", "Sell you a product", "Update your software", "Entertain you"], answer: 0, difficulty: 'easy', keyTip: "Be wary of emails asking for personal info.", explanation: "Phishing scams use deceptive emails to trick you into giving away sensitive info like <strong>passwords or credit card numbers</strong>. They often create a sense of urgency." },
+        { question: "What does 'HTTPS' at the start of a URL indicate?", options: ["The website is popular", "It is a high-speed site", "The connection is secure and encrypted", "The site is for commercial use"], answer: 2, difficulty: 'easy', keyTip: "Always look for 'HTTPS' on websites before entering data.", explanation: "The <strong>'S' stands for Secure</strong>. HTTPS <strong>encrypts data</strong> sent between your browser and the website, making it much harder for hackers to intercept." },
+        { question: "Which of these is the strongest password?", options: ["12345678", "password123", "R!v3r$1d3#24?", "MyDogSparky"], answer: 2, difficulty: 'easy', keyTip: "Use a long mix of letters, numbers, and symbols for passwords.", explanation: "A strong password is <strong>long and uses a mix</strong> of uppercase letters, lowercase letters, numbers, and symbols. Avoid common words or personal info." },
+        { question: "What is the main risk of using public Wi-Fi?", options: ["Slower internet speeds", "Hackers on the same network can intercept your data", "It uses more battery", "You see more ads"], answer: 1, difficulty: 'easy', keyTip: "Avoid sensitive activities (like banking) on public Wi--Fi.", explanation: "Public Wi-Fi networks are often unsecured. Attackers on the same network can easily <strong>spy on your activity and steal data</strong>. A <strong>VPN is highly recommended</strong>." },
+        { question: "Parental controls can be used to...", options: ["Increase internet speed", "Block specific websites and filter content", "Charge your child's device", "Improve video quality"], answer: 1, difficulty: 'easy', keyTip: "Use parental controls to set limits and filter content.", explanation: "Parental controls are essential tools for <strong>setting screen time limits, filtering inappropriate content, and blocking</strong> specific apps or websites to create a safer online environment." },
+        { question: "What is 'Two-Factor Authentication' (2FA)?", options: ["Using two different browsers", "A security question", "Two separate user accounts", "A password and a second code from your phone"], answer: 3, difficulty: 'medium', keyTip: "Enable Two-Factor Authentication (2FA) on all important accounts.", explanation: "2FA <strong>adds a second layer of security</strong>. Even if a hacker steals your password, they <strong>can't log in without the code from your physical device</strong> (like your phone)." },
+        { question: "If your child is being cyberbullied, you should...", options: ["Tell them to ignore it", "Delete their social media accounts", "Save evidence and report it to the platform and school", "Confront the bully online"], answer: 2, difficulty: 'easy', keyTip: "If cyberbullying occurs, save evidence and report it.", explanation: "Ignoring cyberbullying rarely makes it stop. The best approach is to <strong>document everything (screenshots), block the bully, and report the behavior</strong> to the relevant platforms and authorities like the school." },
+        { question: "What is 'malware'?", options: ["A type of computer hardware", "Malicious software designed to harm your device", "A popular social media app", "An internet service provider"], answer: 1, difficulty: 'easy', keyTip: "Install reputable antivirus software to protect against malware.", explanation: "Malware is a broad term for any software designed to be harmful, including <strong>viruses, spyware (which spies on you), and ransomware</strong> (which locks your files)." },
+        { question: "Why is it important to keep software and apps updated?", options: ["Updates often include critical security patches", "To get new features and emojis", "To free up storage space", "To make the app icon look newer"], answer: 0, difficulty: 'easy', keyTip: "Always install software updates promptly for security.", explanation: "While new features are nice, the <strong>most important reason to update is security</strong>. Hackers find and exploit security holes in old software, and <strong>updates patch these holes</strong>." },
+        { question: "Your child wants to download an app from an unofficial website. You should...", options: ["Let them, if the app is free", "Say no, as it could contain viruses or spyware", "Check the website's reviews first", "Ask their friend if it's safe"], answer: 1, difficulty: 'easy', keyTip: "Only download apps from official app stores.", explanation: "<strong>Unofficial app stores are a primary source of malware</strong>. These 'free' apps often come with hidden viruses that can steal your data or damage your device." },
+        { question: "What is a 'digital footprint'?", options: ["The size of your computer's hard drive", "A trail of data you create while using the internet", "A type of secure login", "The number of devices you own"], answer: 1, difficulty: 'medium', keyTip: "Be mindful that everything you do online leaves a trace.", explanation: "Your digital footprint is the <strong>record of your online activity</strong>, from social media posts to search history. It's important to be mindful of what you're leaving behind." },
+        { question: "A social media quiz asks for your mother's maiden name and first pet's name. Why could this be risky?", options: ["The quiz might be boring", "It's too personal to share", "These are common security question answers", "Your friends will see your answers"], answer: 2, difficulty: 'medium', keyTip: "Avoid online quizzes that ask for personal information.", explanation: "Data harvesting quizzes are designed to <strong>steal the answers to your security questions</strong>, which can then be used to break into your email, banking, and other accounts." },
+        { question: "What is the safest way to dispose of an old computer or phone?", options: ["Just delete your files", "Perform a factory reset to wipe all data", "Donate it directly to charity", "Sell it online as is"], answer: 1, difficulty: 'easy', keyTip: "Factory reset old devices before giving them away.", explanation: "Simply deleting files doesn't remove them permanently. A <strong>factory reset erases all personal data</strong>, making it safe to sell, donate, or recycle the device." },
+        { question: "What does 'doxing' mean?", options: ["Fixing a software bug", "Searching for and publishing someone's private information online", "Backing up your documents", "A type of computer virus"], answer: 1, difficulty: 'hard', keyTip: "Protect your personal info to avoid being 'doxed'.", explanation: "Doxing is a severe form of online harassment where an attacker researches and <strong>publicly broadcasts a person's private information</strong>, such as their home address or phone number." },
+        { question: "When is it okay for your child to meet an online-only friend in person?", options: ["Whenever they want", "Only if the friend seems nice", "Never, without your permission and supervision", "If they meet in a public place"], answer: 2, difficulty: 'easy', keyTip: "Children must never meet online friends alone.", explanation: "People can easily lie about who they are online. A child should <strong>never meet an online acquaintance without a trusted adult's permission and presence</strong> in a safe, public place." },
+        { question: "What is ransomware?", options: ["A virus that locks your files and demands payment", "A free antivirus program", "Software that manages your computer's memory", "A tool for online shopping"], answer: 0, difficulty: 'medium', keyTip: "Regularly back up important files to protect against ransomware.", explanation: "Ransomware is a type of malware that <strong>encrypts your files</strong>, making them inaccessible. The attackers then <strong>demand a ransom (payment)</strong> to unlock them." },
+        { question: "To protect your social media privacy, you should...", options: ["Accept all friend requests to be popular", "Post your phone number so friends can reach you", "Regularly review your privacy settings", "Never post anything"], answer: 2, difficulty: 'easy', keyTip: "Check your social media privacy settings often.", explanation: "Social media platforms frequently update their settings. It's crucial to <strong>periodically review who can see your posts and personal information</strong> to ensure you're not oversharing." },
+        { question: "An app asks for permission to access your contacts, microphone, and location. What should you do?", options: ["Only grant permissions that are essential for the app's function", "Accept all permissions to make it work", "Deny all permissions", "Delete the app immediately"], answer: 0, difficulty: 'medium', keyTip: "Only grant app permissions that are truly necessary.", explanation: "Be critical of app permissions. A calculator app doesn't need access to your contacts. <strong>Only grant permissions that make sense</strong> for the app's purpose to protect your privacy." },
+        { question: "Which of these is a good tip for creating a password?", options: ["Use your birthday or address", "Use the same password everywhere", "Make it long and combine letters, numbers, and symbols", "Write it on a sticky note on your monitor"], answer: 2, difficulty: 'easy', keyTip: "Use unique passwords for different websites.", explanation: "<strong>Using the same password everywhere is very risky</strong>. If one site has a data breach, hackers can use that password to access all your other accounts." },
+        { question: "What is a key safety rule for children online?", options: ["Share passwords with their best friend", "Keep secrets from parents about their online activity", "Click on all advertisements", "Never share personal information like their address or school name"], answer: 3, difficulty: 'easy', keyTip: "Teach children to never share personal info online.", explanation: "Teaching children to <strong>never share personal identifying information (PII)</strong> like their full name, address, school, or phone number is a fundamental rule of online safety." }
+    ];
+    const MASTER_HARD_MODE_1 = [
+        { question: "An attacker who tricks you by pretending to be trustworthy is using...", options: ["Doxing", "Social Engineering", "Encryption", "A VPN"], answer: 1, explanation: "<strong>Social Engineering</strong> is the art of manipulating people into giving up confidential information. Phishing is a common form of this." },
+        { question: "A 'Zero-Day' vulnerability is a security flaw that is...", options: ["Patched and no longer a threat", "Found in mobile apps only", "Known to the public for a long time", "Unknown to the software vendor and actively exploited"], answer: 3, explanation: "It's called 'Zero-Day' because the developers have had zero days to fix it once it's discovered by attackers, making it extremely dangerous." },
+        { question: "What is the primary purpose of a VPN (Virtual Private Network)?", options: ["To increase your internet speed", "To get free access to paid streaming services", "To encrypt your internet traffic and hide your IP address", "To block all advertisements on websites"], answer: 2, explanation: "A VPN creates a secure, encrypted tunnel for your data, protecting your privacy from your ISP, hackers on public Wi-Fi, and other snoops." }
+    ];
+    const MASTER_HARD_MODE_2 = [
+        { question: "Which of these creates the most persistent 'digital footprint'?", options: ["Clearing your browser history", "Using incognito mode", "Posting a photo on a public social media profile", "Sending an encrypted email"], answer: 2, explanation: "Once something is posted publicly online, you lose control of it. It can be screenshotted, shared, and archived, making it effectively permanent." },
+        { question: "If a gaming app asks for permission to your contacts and location, this is likely...", options: ["A standard procedure for all apps", "Required for the game to function properly", "A privacy risk and potentially unnecessary data collection", "A way to back up your contacts safely"], answer: 2, explanation: "Always be critical of app permissions. A game rarely needs to know who your contacts are or where you are at all times. This is often a sign of excessive data harvesting." },
+        { question: "What is 'Smishing'?", options: ["A type of computer virus", "A phishing scam conducted via SMS/text messages", "A secure way to send messages", "A new social media platform"], answer: 1, explanation: "Smishing is a combination of 'SMS' and 'phishing'. These are scam text messages that try to trick you into clicking a malicious link or revealing personal information." }
+    ];
 
-// =================================================================
-// CORE QUIZ LOGIC
-// =================================================================
-function initializeQuiz() {
-    state.quizData = shuffleArray(MASTER_NORMAL).slice(0, QUIZ_LENGTH);
-    state.currentQuestion = 0;
-    state.score = 0;
-    state.userAnswers = [];
-    state.hardModeActive = false;
-    state.hintUsed = false;
-    clearTimer();
+    // DYNAMIC DIFFICULTY: New set of expert-level questions
+    const MASTER_EXPERT_QUESTIONS = [
+        { question: "What is a 'man-in-the-middle' (MITM) attack?", options: ["A physical breach of a server room", "An attacker secretly intercepting and relaying communications", "A type of denial-of-service attack", "A social engineering tactic using email"], answer: 1, difficulty: 'expert', keyTip: "MITM attacks are a key reason to avoid unsecured public Wi-Fi.", explanation: "In a Man-in-the-Middle attack, the attacker positions themself between two parties (e.g., you and your bank) to eavesdrop on or alter the communication. HTTPS is a primary defense." },
+        { question: "In cryptography, what is a 'salt' used for?", options: ["To add extra characters to an encrypted message", "To make password hashing more secure against rainbow table attacks", "A key to unlock encrypted files", "To time-stamp a digital signature"], answer: 1, difficulty: 'expert', keyTip: "Salting adds a unique, random value to each password before hashing.", explanation: "A salt is random data added to a password before it's hashed. This ensures that even if two users have the same password, their stored hashes will be different, defeating pre-computed hash lists (rainbow tables)." },
+        { question: "Which of these best describes 'SQL Injection'?", options: ["Overloading a database with too many requests", "Inserting malicious code into a website's database query", "Encrypting database files and demanding a ransom", "Deleting a website's main SQL file"], answer: 1, difficulty: 'expert', keyTip: "SQL Injection exploits websites that don't properly sanitize user input.", explanation: "SQL Injection is an attack where malicious SQL statements are inserted into an entry field for execution, often to dump database contents to the attacker." },
+        { question: "A 'botnet' is a...", options: ["Type of advanced antivirus software", "Network of private computers infected with malicious software", "A secure chatroom for hackers", "A protocol for anonymous web browsing"], answer: 1, difficulty: 'expert', keyTip: "Botnets are often used to carry out large-scale DDoS attacks.", explanation: "A botnet is a collection of internet-connected devices, which could include PCs, servers, mobile devices and internet of things devices that have been compromised by a common type of malware." }
+    ];
 
-    // Set dynamic hard mode triggers based on quiz length
-    const firstTrigger = Math.floor(QUIZ_LENGTH * 0.25);
-    const secondTrigger = Math.floor(QUIZ_LENGTH * 0.75);
-    state.hardModeTriggers = [firstTrigger, secondTrigger].filter((v, i, a) => a.indexOf(v) === i); // Ensure unique triggers
-
-    document.getElementById('hint').disabled = false;
-    renderLeaderboard();
-    showQuestion();
-}
-
-function showQuestion() {
-    clearTimer();
-    document.getElementById('timer-display').textContent = "";
-
-    // Check if it's time to trigger a hard mode round
-    if (state.hardModeTriggers.includes(state.currentQuestion)) {
-        const triggerIndex = state.hardModeTriggers.indexOf(state.currentQuestion);
-        state.hardModeTriggers.splice(triggerIndex, 1); // Use trigger only once
-        insertHardModeRound();
-        showHardModal();
-        return; // Pause quiz until user starts hard round
-    }
-
-    const q = state.quizData[state.currentQuestion];
-    document.getElementById('round-title').textContent = `Question ${state.currentQuestion + 1} of ${state.quizData.length}`;
-    document.getElementById('question-text').textContent = q.q;
-
-    const optsDiv = document.getElementById('options');
-    optsDiv.innerHTML = '';
-
-    const optObjs = q.opts.map((text, idx) => ({ text, origIdx: idx }));
-    shuffleArray(optObjs).forEach(optObj => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.textContent = optObj.text;
-        btn.dataset.orig = optObj.origIdx;
-        btn.onclick = () => selectAnswer(btn, optObj.origIdx, q.correct);
-        optsDiv.appendChild(btn);
-    });
-
-    document.getElementById('next').classList.add('hidden');
-    updateProgressBar();
-    if (state.hardModeActive) {
-        startHardTimer();
-    }
-}
-
-function selectAnswer(clickedButton, chosenOrigIdx, correctOrigIdx) {
-    clearTimer();
-    const q = state.quizData[state.currentQuestion];
-    const isCorrect = chosenOrigIdx === correctOrigIdx;
-    const isHard = q.type === 'hard';
-
-    // Disable all option buttons and find the correct one
-    const btns = Array.from(document.querySelectorAll('#options button'));
-    let correctButton = null;
-    btns.forEach(b => {
-        b.disabled = true;
-        if (Number(b.dataset.orig) === correctOrigIdx) {
-            correctButton = b;
-        }
-    });
-
-    // Apply styles
-    if (correctButton) correctButton.classList.add('correct');
-    if (!isCorrect) clickedButton.classList.add('incorrect');
+    const ACHIEVEMENTS = {
+        perfect_round: { name: 'Perfect Round!', emoji: '🎯', description: 'Answered all questions in a normal round correctly.' },
+        streak_5: { name: 'On a Roll!', emoji: '🔥', description: 'Achieved a 5-answer streak.' },
+        streak_10: { name: 'Unstoppable!', emoji: '🚀', description: 'Achieved a 10-answer streak.' },
+        clutch_player: { name: 'Clutch Player', emoji: '⏳', description: 'Answered a Hard Mode question with less than 3 seconds left.' },
+        speed_demon: { name: 'Speed Demon', emoji: '⚡', description: 'Finished a Hard Mode round with an average of 10+ seconds remaining per question.' },
+        quick_learner: { name: 'Quick Learner', emoji: '🧠', description: 'Used a hint and still got the answer correct.' }
+    };
     
-    // Update score
-    if (isCorrect) {
-        state.score += isHard ? 2 : 1;
-        playSound('snd-correct');
-    } else {
-        if (isHard) state.score = Math.max(0, state.score - 1);
-        playSound('snd-wrong');
-    }
+    const roundTitles = ["Round 1: The Basics", "Round 2: Account Security", "Round 3: Safe Habits", "Round 4: Advanced Threats"];
+    const roundIntroData = [
+        { title: "Round 1: The Basics", message: "Let's get started!" },
+        { title: "Round 2: Account Security", message: "Time to level up!" },
+        { title: "Round 3: Safe Habits", message: "Building good habits!" },
+        { title: "Round 4: Advanced Threats", message: "Prepare for a challenge!" }
+    ];
+    const roundQuestions = 5;
 
-    // Save answer for review
-    state.userAnswers[state.currentQuestion] = {
-        question: q.q, options: q.opts, chosen: chosenOrigIdx,
-        correct: correctOrigIdx, explanation: q.explanation
+    const state = {
+        quizData: [],
+        HARD_MODE_QUESTIONS_1: [],
+        HARD_MODE_QUESTIONS_2: [],
+        currentQuestion: 0,
+        score: 0,
+        userAnswers: [],
+        hardModeUserAnswers1: [],
+        hardModeUserAnswers2: [],
+        currentReviewIndex: 0,
+        fullReviewData: [],
+        scoreSaved: false,
+        currentStreak: 0,
+        hintsRemaining: 2,
+        sessionAchievements: new Set(),
+        gameplayStats: {},
+        hardModeActive: false,
+        hardModeQuestionIndex: 0,
+        questionTimer: null,
+        timeLeft: 0,
+        activeHardModeSet: [],
+        hardModeTriggers: []
     };
 
-    document.getElementById('next').classList.remove('hidden');
-}
-
-function nextQuestion() {
-    state.currentQuestion++;
-    if (state.currentQuestion < state.quizData.length) {
-        showQuestion();
-    } else {
-        showResults();
-    }
-}
-
-// =================================================================
-// HARD MODE & TIMER
-// =================================================================
-function insertHardModeRound() {
-    const hardQuestions = shuffleArray(MASTER_HARD_MODE).slice(0, 3);
-    state.quizData.splice(state.currentQuestion, 0, ...hardQuestions);
-}
-
-function showHardModal() {
-    document.getElementById('hard-instructions').innerHTML =
-        `<p class="small-note" style="text-align:center;">Get ready for a challenge!</p>
-         <ul>
-           <li><strong>${hardModeTimer}</strong> second timer per question.</li>
-           <li><strong>Correct answers: +2 points</strong></li>
-           <li><strong>Wrong answer or timeout: -1 point</strong></li>
-         </ul>`;
-    document.getElementById('hard-modal').classList.remove('hidden');
-}
-
-function startHardMode() {
-    state.hardModeActive = true;
-    document.getElementById('hard-modal').classList.add('hidden');
-    showQuestion(); // Show the first hard question
-}
-
-function startHardTimer() {
-    let timeLeft = hardModeTimer;
-    const timerEl = document.getElementById('timer-display');
-    timerEl.textContent = `Time Left: ${timeLeft}`;
-    
-    state.timerId = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = `Time Left: ${timeLeft}`;
-        if (timeLeft <= 0) {
-            handleHardTimeout();
+    document.addEventListener('DOMContentLoaded', () => {
+        const getEl = (id) => document.getElementById(id);
+        const splashScreen = getEl('splash-screen'), welcomeContainer = getEl('welcome-container'), quizContainer = getEl('quiz-container'), resultsContainer = getEl('results-container');
+        const startBtn = getEl('start-btn'), nextBtn = getEl('next-btn'), settingsBtn = getEl('settings-btn'), aboutBtn = getEl('about-btn');
+        const modalOverlay = getEl('modal-overlay'), modalContent = getEl('modal-content');
+        const copyrightText = getEl('copyright-text'), screenFlash = document.querySelector('.screen-flash');
+        const roundTitleEl = getEl('round-title'), feedbackArea = getEl('feedback-area');
+        const correctSound = getEl('correct-sound'), incorrectSound = getEl('incorrect-sound');
+        const roundIntroBanner = getEl('round-intro-banner'), reviewBtn = getEl('review-btn'), goHomeBtn = getEl('go-home-btn');
+        const starfieldCanvas = getEl('starfield-canvas'), questionEl = getEl("question"), optionsEl = getEl("options"), progressBar = getEl("progress-bar");
+        const timerBarContainer = getEl('timer-bar-container'), timerBar = getEl('timer-bar'), timerText = getEl('timer-text');
+        const scoreDisplayArea = getEl('score-display-area'), highScoreArea = getEl('high-score-area'), saveScoreArea = getEl('save-score-area');
+        const leaderboardArea = getEl('leaderboard-area'), resultsLeaderboardArea = getEl('results-leaderboard-area');
+        const streakCounter = getEl('streak-counter'), hintBtn = getEl('hint-btn'), achievementsEarned = getEl('achievements-earned');
+        
+        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+        function shuffleSet(masterSet) { const shuffled = JSON.parse(JSON.stringify(masterSet)); shuffled.forEach(q => { const c = q.options[q.answer]; shuffleArray(q.options); q.answer = q.options.indexOf(c); }); return shuffled; }
+        
+        function getPlayerProfile() {
+            try {
+                const profile = JSON.parse(localStorage.getItem('playerProfile'));
+                if (profile && typeof profile.perfectRounds === 'number') {
+                    return profile;
+                }
+            } catch (e) {}
+            return { perfectRounds: 0, highStreaks: 0, difficultyLevel: 'normal' };
         }
-    }, 1000);
-}
 
-function handleHardTimeout() {
-    clearTimer();
-    state.score = Math.max(0, state.score - 1); // Penalty
-    playSound('snd-wrong');
-
-    // Show correct answer and disable options
-    const q = state.quizData[state.currentQuestion];
-    const btns = Array.from(document.querySelectorAll('#options button'));
-    btns.forEach(b => {
-        b.disabled = true;
-        if (Number(b.dataset.orig) === q.correct) {
-            b.classList.add('correct');
+        function savePlayerProfile(profile) {
+            try {
+                localStorage.setItem('playerProfile', JSON.stringify(profile));
+            } catch (e) {
+                console.error("Could not save player profile:", e);
+            }
         }
-    });
-    
-    document.getElementById('next').classList.remove('hidden');
-}
 
-function clearTimer() {
-    if (state.timerId) {
-        clearInterval(state.timerId);
-        state.timerId = null;
-    }
-}
+        async function initializeQuizData() {
+            const playerProfile = getPlayerProfile();
+            let notifyExpert = false;
 
-// =================================================================
-// HINT FUNCTIONALITY
-// =================================================================
-function useHint() {
-    if (state.hintUsed) return;
-    const q = state.quizData[state.currentQuestion];
-    const btns = Array.from(document.querySelectorAll('#options button'));
-    
-    const incorrectButtons = btns.filter(b => Number(b.dataset.orig) !== q.correct);
-    
-    if (incorrectButtons.length >= 2) {
-        shuffleArray(incorrectButtons).slice(0, 2).forEach(b => {
-            b.disabled = true;
-            b.style.opacity = '0.4';
+            if (playerProfile.difficultyLevel === 'normal' && playerProfile.perfectRounds >= 2 && playerProfile.highStreaks >= 6) {
+                playerProfile.difficultyLevel = 'expert';
+                savePlayerProfile(playerProfile);
+                notifyExpert = true;
+            }
+
+            if (playerProfile.difficultyLevel === 'expert') {
+                const expertPool = MASTER_QUIZ_DATA.filter(q => q.difficulty !== 'easy');
+                const allQuestions = [...expertPool, ...MASTER_EXPERT_QUESTIONS];
+                state.quizData = shuffleSet(allQuestions).slice(0, 20);
+            } else {
+                state.quizData = shuffleSet(MASTER_QUIZ_DATA);
+            }
+            
+            // Set dynamic hard mode triggers based on the number of normal questions
+            const numNormalQuestions = state.quizData.length;
+            const firstTrigger = Math.floor(numNormalQuestions * 0.33);
+            const secondTrigger = Math.floor(numNormalQuestions * 0.66);
+            state.hardModeTriggers = [firstTrigger, secondTrigger].filter((v, i, a) => a.indexOf(v) === i && v > 0 && v < numNormalQuestions -1); // Ensure unique and valid trigger points
+
+            state.HARD_MODE_QUESTIONS_1 = shuffleSet(MASTER_HARD_MODE_1);
+            state.HARD_MODE_QUESTIONS_2 = shuffleSet(MASTER_HARD_MODE_2);
+            state.userAnswers = new Array(state.quizData.length).fill(null);
+            state.hardModeUserAnswers1 = new Array(MASTER_HARD_MODE_1.length).fill(null);
+            state.hardModeUserAnswers2 = new Array(MASTER_HARD_MODE_2.length).fill(null);
+            state.score = 0;
+            state.currentQuestion = 0;
+            state.hardModeActive = false;
+            state.hardModeQuestionIndex = 0;
+            state.scoreSaved = false; 
+            state.currentStreak = 0;
+            state.hintsRemaining = 2;
+            state.sessionAchievements = new Set();
+            state.gameplayStats = { roundCorrect: [0, 0, 0, 0], hasPerfectRound: false, hm1_totalTime: 0, hm2_totalTime: 0, hm_clutch: false, usedHintAndCorrect: false };
+            updateStreakCounter();
+            clearInterval(state.questionTimer);
+            quizContainer.classList.remove('hard-mode');
+            timerBarContainer.style.display = 'none';
+
+            if (notifyExpert) {
+                await showCustomModal({
+                    title: "🏆 Challenge Unlocked! 🏆",
+                    message: "Your skills have been noticed! You've unlocked <strong>Expert Mode</strong>. The questions will now be more challenging. Good luck!",
+                    buttons: [{ text: 'Bring it on!', value: 'ok', class: 'main-btn' }]
+                });
+            }
+        }
+
+        function applySettings() {
+            let settings = {};
+            try {
+                settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
+            } catch (e) {
+                console.error("Could not parse settings from localStorage", e);
+            }
+            document.body.classList.toggle('minimal-bg', settings.minimalBg);
+            document.body.classList.toggle('high-contrast', settings.highContrast);
+            document.body.classList.toggle('large-text', settings.largeText);
+            document.body.classList.toggle('reduce-motion', settings.reduceMotion);
+            document.body.classList.toggle('light-theme', settings.theme === 'light');
+        }
+
+        function updateSetting(key, value) {
+            let settings = {};
+            try {
+                settings = JSON.parse(localStorage.getItem('quizSettings')) || {};
+            } catch (e) {
+                console.error("Could not parse settings for update", e);
+            }
+            settings[key] = value;
+            try {
+                localStorage.setItem('quizSettings', JSON.stringify(settings));
+            } catch (e) {
+                console.error("Could not update setting in localStorage:", e);
+            }
+            applySettings();
+        }
+
+        function loadQuestion() {
+            if (state.currentQuestion >= state.quizData.length) {
+                showResults();
+                return;
+            }
+            const q = state.quizData[state.currentQuestion];
+            const roundIdx = Math.floor(state.currentQuestion / roundQuestions);
+            roundTitleEl.textContent = roundTitles[roundIdx];
+            if (state.currentQuestion % roundQuestions === 0) {
+                roundTitleEl.classList.remove('animate-in');
+                void roundTitleEl.offsetWidth;
+                roundTitleEl.classList.add('animate-in');
+            }
+            questionEl.textContent = q.question;
+            optionsEl.innerHTML = ""; 
+            q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
+            hintBtn.disabled = state.hintsRemaining <= 0;
+            hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`;
+            nextBtn.style.display = "none";
+            feedbackArea.textContent = "";
+            feedbackArea.className = "";
+        }
+
+        function updateStreakCounter() { if(state.currentStreak > 1) { streakCounter.textContent = `🔥 Streak: ${state.currentStreak}`; streakCounter.classList.add('visible'); } else { streakCounter.classList.remove('visible'); } }
+        
+        function checkAnswer(selectedIndex, timedOut = false) {
+            clearInterval(state.questionTimer);
+            timerBarContainer.style.display = 'none';
+            const optionButtons = document.querySelectorAll("#options button");
+            let correctIndex, isCorrect = false;
+            
+            if (state.hardModeActive) {
+                let timerDuration = 15;
+                try { timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15; } catch(e) {}
+                const timeTaken = timerDuration - state.timeLeft;
+                if(state.currentQuestion === state.hardModeTriggers[0]) state.gameplayStats.hm1_totalTime += timeTaken; else state.gameplayStats.hm2_totalTime += timeTaken;
+                if(!timedOut && state.timeLeft < 3) state.gameplayStats.hm_clutch = true;
+
+                const set = (state.currentQuestion === state.hardModeTriggers[0]) ? state.HARD_MODE_QUESTIONS_1 : state.HARD_MODE_QUESTIONS_2;
+                const answers = (state.currentQuestion === state.hardModeTriggers[0]) ? state.hardModeUserAnswers1 : state.hardModeUserAnswers2;
+                correctIndex = set[state.hardModeQuestionIndex].answer;
+                answers[state.hardModeQuestionIndex] = selectedIndex;
+
+                if (selectedIndex === correctIndex) {
+                    isCorrect = true;
+                    state.score += 2;
+                    feedbackArea.innerHTML = '<strong>Correct! +2 Points ✅</strong>';
+                    feedbackArea.className = 'correct visible';
+                } else {
+                    state.score = Math.max(0, state.score - 1);
+                    feedbackArea.innerHTML = timedOut ? '<strong>Time\'s Up! -1 Point ⏳</strong>' : '<strong>Incorrect! -1 Point ❌</strong>';
+                    feedbackArea.className = 'incorrect visible';
+                }
+            } else {
+                correctIndex = state.quizData[state.currentQuestion].answer;
+                state.userAnswers[state.currentQuestion] = selectedIndex;
+                if (selectedIndex === correctIndex) {
+                    isCorrect = true;
+                    state.gameplayStats.roundCorrect[Math.floor(state.currentQuestion / roundQuestions)]++;
+                    state.score++;
+                    feedbackArea.innerHTML = '<strong>Correct! ✅</strong>';
+                    feedbackArea.className = 'correct visible';
+                } else {
+                    feedbackArea.innerHTML = '<strong>Not quite! The right answer is highlighted.</strong>';
+                    feedbackArea.className = 'incorrect visible';
+                }
+            }
+
+            if(isCorrect) {
+                state.currentStreak++;
+                if(state.currentStreak > 0 && state.currentStreak % 5 === 0) { state.score++; feedbackArea.innerHTML += ' <strong>+1 Streak Bonus!</strong>'; }
+                if(hintBtn.disabled && state.hintsRemaining < 2) state.gameplayStats.usedHintAndCorrect = true;
+                correctSound.play().catch(e => {});
+                triggerScreenFlash(true);
+            } else {
+                state.currentStreak = 0;
+                incorrectSound.play().catch(e => {});
+                triggerScreenFlash(false);
+            }
+
+            updateStreakCounter();
+            optionButtons.forEach((btn, i) => { btn.disabled = true; if (i === correctIndex) btn.classList.add('correct'); if (selectedIndex === i && selectedIndex !== correctIndex) btn.classList.add('incorrect'); });
+            hintBtn.disabled = true;
+            nextBtn.style.display = "inline-block";
+            nextBtn.focus();
+        }
+        
+        function triggerScreenFlash(isCorrect) {
+            screenFlash.className = 'screen-flash';
+            void screenFlash.offsetWidth;
+            screenFlash.classList.add(isCorrect ? 'correct' : 'incorrect');
+        }
+        
+        function triggerFireworks() {
+            if (document.body.classList.contains('reduce-motion')) return;
+            const duration = 2 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        }
+
+        function calculateScoreBreakdown() {
+            let n = 0, hm = 0;
+            state.userAnswers.forEach((a, i) => { if(a === state.quizData[i].answer) n++; });
+            state.hardModeUserAnswers1.forEach((a,i) => { if(a === state.HARD_MODE_QUESTIONS_1[i].answer) hm+=2; else if(a !== null && a !== -1) hm--; });
+            state.hardModeUserAnswers2.forEach((a,i) => { if(a === state.HARD_MODE_QUESTIONS_2[i].answer) hm+=2; else if(a !== null && a !== -1) hm--; });
+            return { normalScore: n, hardModeScore: hm };
+        }
+
+        function checkAchievements() {
+            state.sessionAchievements = new Set();
+
+            if(state.gameplayStats.roundCorrect.some(r => r === roundQuestions)) {
+                state.sessionAchievements.add('perfect_round');
+                state.gameplayStats.hasPerfectRound = true;
+            }
+            
+            let maxStreak = 0;
+            let currentProcessingStreak = 0;
+            const allAnswers = state.userAnswers.map((a,i) => ({a, c: state.quizData[i].answer}))
+                                .concat(state.hardModeUserAnswers1.map((a,i) => ({a, c: state.HARD_MODE_QUESTIONS_1[i].answer})))
+                                .concat(state.hardModeUserAnswers2.map((a,i) => ({a, c: state.HARD_MODE_QUESTIONS_2[i].answer})));
+            
+            allAnswers.forEach(ans => {
+                if(ans.a === ans.c && ans.a !== null) { currentProcessingStreak++; }
+                else { maxStreak = Math.max(maxStreak, currentProcessingStreak); currentProcessingStreak = 0; }
+            });
+            maxStreak = Math.max(maxStreak, currentProcessingStreak);
+            
+            if(maxStreak >= 10) state.sessionAchievements.add('streak_10');
+            else if(maxStreak >= 5) state.sessionAchievements.add('streak_5');
+
+            if(state.gameplayStats.hm_clutch) state.sessionAchievements.add('clutch_player');
+            const avgTime1 = state.gameplayStats.hm1_totalTime / MASTER_HARD_MODE_1.length;
+            const avgTime2 = state.gameplayStats.hm2_totalTime / MASTER_HARD_MODE_2.length;
+            if((avgTime1 > 0 && avgTime1 < 5) || (avgTime2 > 0 && avgTime2 < 5)) state.sessionAchievements.add('speed_demon');
+            if(state.gameplayStats.usedHintAndCorrect) state.sessionAchievements.add('quick_learner');
+            
+            const playerProfile = getPlayerProfile();
+            if (state.gameplayStats.hasPerfectRound) {
+                playerProfile.perfectRounds++;
+            }
+            if (maxStreak >= 5) {
+                playerProfile.highStreaks++;
+            }
+            savePlayerProfile(playerProfile);
+        }
+
+        function displayEarnedAchievements() {
+            if (state.sessionAchievements.size === 0) { achievementsEarned.innerHTML = ''; return; }
+            let html = '<h3>Achievements Unlocked!</h3><div class="achievement-list">';
+            state.sessionAchievements.forEach(id => { const ach = ACHIEVEMENTS[id]; html += `<div class="achievement-badge" title="${ach.description}">${ach.emoji} ${ach.name}</div>`; });
+            html += '</div>';
+            achievementsEarned.innerHTML = html;
+        }
+
+        function showResults() {
+            prepareFullReview();
+            checkAchievements();
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            displayLeaderboard(resultsLeaderboardArea);
+            
+            const { normalScore, hardModeScore } = calculateScoreBreakdown();
+            scoreDisplayArea.innerHTML = `<div class="score-breakdown"><div>Normal Score: <span class="score-value">${normalScore} / 20</span></div><div>Hard Mode Bonus: <span class="score-value ${hardModeScore >= 0 ? 'bonus-positive' : 'bonus-negative'}">${hardModeScore >= 0 ? '+' : ''}${hardModeScore}</span></div><div>Final Score: <span class="score-value final" id="final-score-value">0</span></div></div>`;
+            
+            const finalScoreEl = getEl('final-score-value');
+            let tempScore = 0;
+            const scoreInterval = setInterval(() => { tempScore++; finalScoreEl.textContent = tempScore; if (tempScore >= state.score) clearInterval(scoreInterval); }, 25);
+            
+            try {
+                let hs = localStorage.getItem('cyberQuizHighScore') || 0;
+                if (state.score > hs) {
+                    hs = state.score;
+                    localStorage.setItem('cyberQuizHighScore', hs);
+                    highScoreArea.innerHTML = `🏆 <span class="new-high-score">New Family High Score: ${hs}!</span>`;
+                } else {
+                    highScoreArea.innerHTML = `🏆 Family High Score: ${hs}`;
+                }
+            } catch (e) { highScoreArea.textContent = ""; console.error(e); }
+            
+            saveScoreArea.classList.remove('hidden');
+            saveScoreArea.innerHTML = `<input type="text" id="player-name" placeholder="Enter Parent's Name" maxlength="15"><button id="save-score-btn">Save to Leaderboard</button>`;
+            getEl('save-score-btn').onclick = saveScoreAction;
+            
+            const medalDisplay = getEl('medal-display');
+            medalDisplay.className = 'medal-display';
+            let badge, medalIcon;
+            if (state.score >= 26) {
+                badge = "Gold Cyber Guardian";
+                medalIcon = "🥇";
+                medalDisplay.classList.add('gold');
+                setTimeout(triggerFireworks, 300);
+            } else if (state.score >= 18) {
+                badge = "Silver Safety Sentinel";
+                medalIcon = "🥈";
+                medalDisplay.classList.add('silver');
+                if (!document.body.classList.contains('reduce-motion')) {
+                    setTimeout(() => confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, angle: 270, zIndex: 1001 }), 300);
+                }
+            } else {
+                badge = "Bronze Digital Explorer";
+                medalIcon = "🥉";
+                medalDisplay.classList.add('bronze');
+            }
+            getEl('final-badge').textContent = badge;
+            medalDisplay.innerHTML = `<span>${medalIcon}</span>`;
+            displayEarnedAchievements();
+            getEl('thank-you-message').innerHTML = `<b>Thanks for playing!</b><br>A project developed by Saksham Negi, with feedback from Aarish Walia, of the Computer Club.<br>Contact: hianime.2810@gmail.com`;
+            
+            const scrollIndicator = getEl('scroll-indicator');
+            setTimeout(() => { scrollIndicator.classList.toggle('hidden', resultsContainer.scrollHeight <= resultsContainer.clientHeight); }, 100);
+
+            const hideOnScroll = () => {
+                scrollIndicator.classList.add('hidden');
+                resultsContainer.removeEventListener('scroll', hideOnScroll);
+            };
+            resultsContainer.addEventListener('scroll', hideOnScroll);
+            scrollIndicator.onclick = () => resultsContainer.scrollBy({ top: 150, behavior: 'smooth' });
+        }
+        
+        function prepareFullReview() {
+            state.fullReviewData = [];
+            state.quizData.forEach((q, i) => { if(state.userAnswers[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.userAnswers[i], isHardMode: false }); });
+            state.HARD_MODE_QUESTIONS_1.forEach((q, i) => { if(state.hardModeUserAnswers1[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.hardModeUserAnswers1[i], isHardMode: true }); });
+            state.HARD_MODE_QUESTIONS_2.forEach((q, i) => { if(state.hardModeUserAnswers2[i] !== null) state.fullReviewData.push({ ...q, userAnswer: state.hardModeUserAnswers2[i], isHardMode: true }); });
+        }
+        
+        function renderReviewItem(index) {
+            const item = state.fullReviewData[index];
+            const userAnswerIndex = item.userAnswer;
+            const isCorrect = userAnswerIndex === item.answer;
+            const reviewHTML = `<h3 id="modal-title-id">Review: Item ${index + 1} / ${state.fullReviewData.length}</h3><div id="review-nav"><button id="prev-review-btn" ${index === 0 ? 'disabled' : ''}>&larr; Previous</button><button id="next-review-btn" ${index === state.fullReviewData.length - 1 ? 'disabled' : ''}>Next &rarr;</button></div><div id="review-content">${item.isHardMode ? '<div class="review-hard-mode-label">⚡ Hard Mode Question</div>' : ''}<p class="review-question">${item.question}</p>${item.keyTip ? `<div class="key-tip"><strong>Key Tip:</strong> ${item.keyTip}</div>` : ''}<div class="review-answers"><p class="user-answer ${isCorrect ? 'is-correct' : 'is-incorrect'}">Your Answer: ${item.options[userAnswerIndex] ?? 'Timed Out / Not answered'}</p>${!isCorrect ? `<p class="correct-answer">Correct Answer: ${item.options[item.answer]}</p>` : ''}</div><p class="explanation"><strong>Explanation:</strong> ${item.explanation}</p></div>`;
+            showCustomModal({ customHTML: reviewHTML });
+            getEl('prev-review-btn').onclick = () => { if (state.currentReviewIndex > 0) { state.currentReviewIndex--; renderReviewItem(state.currentReviewIndex); } };
+            getEl('next-review-btn').onclick = () => { if (state.currentReviewIndex < state.fullReviewData.length - 1) { state.currentReviewIndex++; renderReviewItem(state.currentReviewIndex); } };
+        }
+
+        function showCustomModal({ title, message, customHTML, input, buttons, allowClose = true }) {
+            return new Promise((resolve) => {
+                let modalHTML = '';
+                if (customHTML) {
+                    modalHTML = customHTML;
+                } else {
+                    modalHTML += title ? `<h2 id="modal-title-id">${title}</h2>` : '';
+                    modalHTML += message ? `<p style="text-align: center;">${message}</p>` : '';
+                    if (input) { modalHTML += `<input type="${input.type || 'text'}" id="modal-input-field" class="modal-input" placeholder="${input.placeholder || ''}">`; }
+                    if (buttons) {
+                        modalHTML += '<div class="modal-buttons">';
+                        buttons.forEach(btn => { modalHTML += `<button id="modal-btn-${btn.value}" class="${btn.class || 'main-btn'}">${btn.text}</button>`; });
+                        modalHTML += '</div>';
+                    }
+                }
+                modalContent.innerHTML = allowClose ? `<button class="modal-close-btn" aria-label="Close modal">×</button>${modalHTML}` : modalHTML;
+                modalOverlay.classList.toggle('is-locked', !allowClose);
+                modalOverlay.classList.add('show');
+                const inputField = getEl('modal-input-field');
+                if(inputField) inputField.focus();
+
+                const focusableElements = modalContent.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                const trapFocus = (e) => {
+                    if (e.key !== 'Tab') return;
+                    if (e.shiftKey) { 
+                        if (document.activeElement === firstElement) {
+                            lastElement.focus();
+                            e.preventDefault();
+                        }
+                    } else { 
+                        if (document.activeElement === lastElement) {
+                            firstElement.focus();
+                            e.preventDefault();
+                        }
+                    }
+                };
+                modalContent.addEventListener('keydown', trapFocus);
+
+                const closeModal = (value) => {
+                    modalContent.removeEventListener('keydown', trapFocus);
+                    modalOverlay.classList.remove('show');
+                    resolve(value);
+                };
+
+                if (buttons) { buttons.forEach(btn => { getEl(`modal-btn-${btn.value}`).onclick = () => { let val = btn.value; if (inputField) val = { button: btn.value, value: inputField.value }; closeModal(val); }; }); }
+                if (allowClose) { modalContent.querySelector('.modal-close-btn').onclick = () => closeModal(false); }
+            });
+        }
+        
+        function triggerHardMode(hardModeRound) {
+            state.activeHardModeSet = hardModeRound;
+            let timerDuration = 15;
+            try {
+                timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15;
+            } catch (e) {
+                console.error("Could not get hard mode timer setting", e);
+            }
+            const hardModeIntroHTML = `<h2 id="modal-title-id">⚡ Special Round: Hard Mode ⚡</h2><p style="text-align:center;">Get ready for a challenge! The rules are different here:</p><ul style="text-align: left; margin: 0 auto; max-width: 300px;"><li><strong>${timerDuration} second timer</strong> per question.</li><li>Correct answers are worth <strong>+2 points</strong>.</li><li>Wrong answers or running out of time will cost you <strong>-1 point</strong>.</li></ul><div class="modal-buttons"><button id="start-hard-mode-btn" class="main-btn">Start Hard Mode</button></div>`;
+            showCustomModal({ customHTML: hardModeIntroHTML, allowClose: false });
+            getEl('start-hard-mode-btn').onclick = () => { modalOverlay.classList.remove('show'); state.hardModeActive = true; state.hardModeQuestionIndex = 0; quizContainer.classList.add('hard-mode'); loadHardModeQuestion(); };
+        }
+        
+        function loadHardModeQuestion() {
+            const q = state.activeHardModeSet[state.hardModeQuestionIndex];
+            roundTitleEl.textContent = `Hard Mode: Question ${state.hardModeQuestionIndex + 1}`;
+            progressBar.classList.add('hard-mode-progress');
+            progressBar.style.width = `${((state.hardModeQuestionIndex) / state.activeHardModeSet.length) * 100}%`;
+            setTimeout(() => { progressBar.style.width = `${((state.hardModeQuestionIndex + 1) / state.activeHardModeSet.length) * 100}%`; }, 100);
+            
+            questionEl.textContent = q.question;
+            optionsEl.innerHTML = "";
+            q.options.forEach((opt, i) => { const b = document.createElement("button"); b.textContent = opt; b.setAttribute('aria-label', `Select option: ${opt}`); b.onclick = () => checkAnswer(i); optionsEl.appendChild(b); });
+            
+            nextBtn.style.display = "none";
+            feedbackArea.textContent = "";
+            feedbackArea.className = "";
+            
+            let timerDuration = 15;
+            try { timerDuration = parseInt((JSON.parse(localStorage.getItem('quizSettings')) || {}).hardModeTimer) || 15; } catch(e){}
+            timerBarContainer.style.display = 'block';
+            timerBar.style.transition = 'none';
+            timerBar.style.width = '100%';
+            void timerBar.offsetWidth; 
+            timerBar.style.transition = `width ${timerDuration}s linear`;
+            timerBar.style.width = '0%';
+            
+            state.timeLeft = timerDuration;
+            timerText.textContent = `${state.timeLeft}s`;
+            clearInterval(state.questionTimer);
+            state.questionTimer = setInterval(() => {
+                state.timeLeft--;
+                timerText.textContent = `${state.timeLeft}s`;
+                if (state.timeLeft <= 0) {
+                    clearInterval(state.questionTimer);
+                    document.querySelectorAll("#options button").forEach(btn => btn.disabled = true);
+                    checkAnswer(-1, true);
+                }
+            }, 1000);
+        }
+        
+        function endHardMode() {
+            clearInterval(state.questionTimer);
+            quizContainer.classList.remove('hard-mode');
+            progressBar.classList.remove('hard-mode-progress');
+            progressBar.style.width = `${((state.currentQuestion) / state.quizData.length) * 100}%`;
+            
+            const roundIndex = Math.floor(state.currentQuestion / roundQuestions);
+            if (roundIndex < roundTitles.length) {
+                showRoundBanner(roundIndex, loadQuestion);
+            } else {
+                loadQuestion();
+            }
+        }
+        
+        function displayLeaderboard(targetElement) {
+            let leaderboard = [];
+            try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e) { console.error("Could not parse leaderboard", e); }
+            targetElement.innerHTML = '<h3>🏆 Top 5 Scores</h3>';
+            if (leaderboard.length === 0) { targetElement.innerHTML += '<p>Be the first on the leaderboard!</p>'; return; }
+            const list = document.createElement('ol');
+            leaderboard.slice(0, 5).forEach((entry, index) => {
+                const item = document.createElement('li');
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                let icon = '🎖️ ';
+                if (index === 0) icon = '🥇 ';
+                else if (index === 1) icon = '🥈 ';
+                else if (index === 2) icon = '🥉 ';
+                item.innerHTML = `<span>${icon}${entry.name}</span><span class="score">${entry.score}</span>`;
+                item.onclick = () => showPlayerAchievements(entry);
+                item.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { showPlayerAchievements(entry); } };
+                list.appendChild(item);
+            });
+            targetElement.appendChild(list);
+        }
+
+        function showPlayerAchievements(player) {
+            let message = '';
+            if (player.achievements && player.achievements.length > 0) {
+                message += '<ul style="text-align: left; list-style-position: inside;">';
+                player.achievements.forEach(id => { const ach = ACHIEVEMENTS[id]; message += `<li>${ach.emoji} <strong>${ach.name}</strong>: ${ach.description}</li>`; });
+                message += '</ul>';
+            } else {
+                message = "No achievements earned in this game.";
+            }
+            showCustomModal({ title: `${player.name}'s Achievements`, message, buttons: [{ text: 'Close', value: 'close', class: 'main-btn' }] });
+        }
+
+        async function saveScoreAction() {
+            const playerNameInput = getEl('player-name');
+            let playerName = playerNameInput.value.trim();
+            if (!playerName) { await showCustomModal({ title: "Input Required", message: "Please enter a name to save your score.", buttons: [{ text: 'OK', value: 'ok', class: 'main-btn' }] }); return; }
+            try {
+                let leaderboard = [];
+                try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e){ console.error(e); }
+                if (leaderboard.some(e => e.name.toLowerCase() === playerName.toLowerCase())) { 
+                    let c = 2, n = `${playerName} #${c}`;
+                    while (leaderboard.some(e => e.name.toLowerCase() === n.toLowerCase())) { c++; n = `${playerName} #${c}`; } 
+                    playerName = n;
+                }
+                leaderboard.push({ name: playerName, score: state.score, achievements: Array.from(state.sessionAchievements) });
+                leaderboard.sort((a, b) => b.score - a.score);
+                localStorage.setItem('cyberQuizLeaderboard', JSON.stringify(leaderboard));
+                saveScoreArea.innerHTML = `<p>Score Saved!</p>`;
+                state.scoreSaved = true;
+                displayLeaderboard(resultsLeaderboardArea);
+            } catch (e) { console.error("Could not save to leaderboard:", e); saveScoreArea.innerHTML = `<p>Could not save score.</p>`; }
+        }
+
+        function initStarfield(canvas) {
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let stars = [], numStars = 400;
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                stars = [];
+                for (let i = 0; i < numStars; i++) {
+                    stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: Math.random() * 1.2 });
+                }
+            };
+            resize();
+            window.addEventListener('resize', resize);
+            const tick = () => {
+                if(document.body.classList.contains('reduce-motion')) { ctx.clearRect(0, 0, canvas.width, canvas.height); requestAnimationFrame(tick); return; };
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const starColor = getComputedStyle(document.body).getPropertyValue('--star-color').trim();
+                ctx.fillStyle = starColor;
+                stars.forEach(s => { s.y += (s.radius * 0.1); if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; } ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, 2 * Math.PI); ctx.fill(); });
+                requestAnimationFrame(tick);
+            };
+            tick();
+        }
+
+        function showRoundBanner(roundIndex, callback) {
+            const intro = roundIntroData[roundIndex];
+            roundIntroBanner.innerHTML = `<h3>${intro.title}</h3><p>${intro.message}</p>`;
+            roundIntroBanner.classList.add('show');
+            setTimeout(() => { roundIntroBanner.classList.remove('show'); if (callback) callback(); }, 2500);
+        }
+
+        async function promptForAdminPassword() {
+            const ADMIN_PASSWORD = 'hianime.2810@gmail.com'; 
+            const password = await showCustomModal({
+                title: "Admin Access Required",
+                message: "Please enter the admin password to proceed.",
+                input: { type: 'password', placeholder: 'Password' },
+                buttons: [
+                    { text: 'Submit', value: 'submit', class: 'secondary-btn' },
+                    { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }
+                ]
+            });
+
+            if (password.button === 'submit') {
+                if (password.value === ADMIN_PASSWORD) {
+                    return true;
+                } else {
+                    showCustomModal({ title: "Access Denied", message: "Incorrect password.", buttons: [{ text: 'OK', value: 'ok' }] });
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        startBtn.onclick = () => {
+            initializeQuizData().then(() => {
+                welcomeContainer.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                progressBar.style.width = `0%`;
+                showRoundBanner(0, () => {
+                    loadQuestion();
+                    progressBar.style.width = `${((state.currentQuestion + 1) / state.quizData.length) * 100}%`;
+                });
+            });
+        };
+        
+        nextBtn.onclick = () => {
+            if (state.hardModeActive) {
+                state.hardModeQuestionIndex++;
+                if (state.hardModeQuestionIndex < state.activeHardModeSet.length) { loadHardModeQuestion(); } 
+                else { state.hardModeActive = false; endHardMode(); }
+                return;
+            }
+            
+            state.currentQuestion++;
+            
+            // Replaced fixed triggers with dynamic ones
+            if (state.hardModeTriggers.includes(state.currentQuestion)) {
+                progressBar.style.width = `${(state.currentQuestion / state.quizData.length) * 100}%`;
+                const hardModeSet = (state.hardModeTriggers[0] === state.currentQuestion) ? state.HARD_MODE_QUESTIONS_1 : state.HARD_MODE_QUESTIONS_2;
+                state.hardModeTriggers.shift(); // Remove the used trigger
+                triggerHardMode(hardModeSet);
+            } else {
+                if (state.currentQuestion >= state.quizData.length) { showResults(); return; }
+                progressBar.style.width = `${(state.currentQuestion / state.quizData.length) * 100}%`;
+                const roundIndex = Math.floor(state.currentQuestion / roundQuestions);
+                if (state.currentQuestion % roundQuestions === 0) {
+                    showRoundBanner(roundIndex, loadQuestion);
+                } else {
+                    loadQuestion();
+                }
+            }
+        };
+
+        goHomeBtn.onclick = async () => {
+            if (!state.scoreSaved) {
+                const confirmed = await showCustomModal({
+                    title: "Are you sure?",
+                    message: "You haven't saved your score. It will be lost if you go home.",
+                    buttons: [{ text: "Go Home", value: 'confirm', class: 'danger-btn' }, { text: "Cancel", value: 'cancel', class: 'secondary-btn' }],
+                    allowClose: false
+                });
+                if (confirmed.button !== 'confirm') return;
+            }
+            clearInterval(state.questionTimer);
+            await initializeQuizData();
+            resultsContainer.classList.add('hidden');
+            welcomeContainer.classList.remove('hidden');
+            displayLeaderboard(leaderboardArea);
+        };
+
+        reviewBtn.onclick = () => { state.currentReviewIndex = 0; renderReviewItem(state.currentReviewIndex); };
+        
+        hintBtn.onclick = () => { 
+            if(state.hintsRemaining > 0) { 
+                state.hintsRemaining--;
+                hintBtn.textContent = `💡 Hint (${state.hintsRemaining})`;
+                hintBtn.disabled = true; 
+                const q = state.hardModeActive ? state.activeHardModeSet[state.hardModeQuestionIndex] : state.quizData[state.currentQuestion];
+                const options = Array.from(document.querySelectorAll('.options button'));
+                let removed = 0;
+                const toRemove = options.length > 3 ? 2 : 1;
+                options.forEach((opt, i) => { if (i !== q.answer && removed < toRemove) { opt.classList.add('hint-removed'); removed++; } });
+            } 
+        };
+        
+        aboutBtn.onclick = () => {
+            const aboutHTML = `<h2 id="modal-title-id">About</h2><p style="text-align:center;">This quiz is designed to be a fun, interactive challenge for families, empowering them with the knowledge to stay safe in the digital world.</p><h3 style="margin-top: 25px;">Credit</h3><div style="text-align: center; line-height: 1.8;"><p style="margin: 5px 0;"><strong>Web Developer:</strong> Saksham Negi</p><p style="margin: 5px 0;"><strong>Suggestions / Feedback:</strong> Aarish Walia</p><p style="margin: 15px 0;">Made with love and support of the Computer Club</p><p style="margin: 5px 0;"><strong>Contact:</strong> hianime.2810@gmail.com</p></div><h3 style="margin-top: 25px;">Version History</h3><div style="text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 15px;"><p>V1-V29: Foundational development and feature creep.</p><p>V30: Definitive, corrected, and feature-complete version.</p></div>`;
+            showCustomModal({ customHTML: aboutHTML });
+        };
+        
+        settingsBtn.onclick = async () => {
+            let settings = {};
+            try { settings = JSON.parse(localStorage.getItem('quizSettings')) || {}; } catch (e) {}
+            
+            const settingsHTML = `<h2 id="modal-title-id">⚙️ Settings</h2><div class="settings-row"><label for="theme-select">🎨 Theme</label><select id="theme-select"><option value="dark">Cyber Dark</option><option value="light">Solarized Light</option><option value="contrast">High Contrast</option></select></div><div class="settings-row"><label for="timer-select">⏱️ Hard Mode Timer</label><select id="timer-select"><option value="15">15 Seconds</option><option value="20">20 Seconds</option><option value="30">30 Seconds</option></select></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Accessibility</h3><div class="settings-row"><label for="bg-toggle">🌌 Background Effects</label><label class="switch"><input type="checkbox" id="bg-toggle" ${!settings.minimalBg ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="text-toggle">🔍 Large Text</label><label class="switch"><input type="checkbox" id="text-toggle" ${settings.largeText ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-row"><label for="motion-toggle">💨 Reduce Motion</label><label class="switch"><input type="checkbox" id="motion-toggle" ${settings.reduceMotion ? 'checked' : ''}><span class="slider"></span></label></div><hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;"><h3>Admin</h3><div class="settings-row"><label for="manage-leaderboard-btn">Manage Leaderboard</label><button id="manage-leaderboard-btn">Manage</button></div><div class="settings-row"><label for="new-player-btn">Reset Settings</label><button id="new-player-btn">Reset</button></div><div class="settings-row"><label for="master-reset-btn">Master Reset</label><button id="master-reset-btn" class="danger">Reset All Data</button></div>`;
+            showCustomModal({ customHTML: settingsHTML });
+            
+            const themeSelect = getEl('theme-select');
+            if (settings.highContrast) {
+                themeSelect.value = 'contrast';
+            } else {
+                themeSelect.value = settings.theme || 'dark';
+            }
+            
+            const bgToggle = getEl('bg-toggle');
+            const motionToggle = getEl('motion-toggle');
+
+            if (settings.reduceMotion) {
+                bgToggle.disabled = true;
+            }
+
+            themeSelect.onchange = (e) => {
+                const selection = e.target.value;
+                if (selection === 'contrast') {
+                    updateSetting('highContrast', true);
+                    updateSetting('theme', 'dark'); 
+                } else {
+                    updateSetting('highContrast', false);
+                    updateSetting('theme', selection);
+                }
+            };
+            
+            getEl('timer-select').value = settings.hardModeTimer || '15';
+            getEl('timer-select').onchange = (e) => updateSetting('hardModeTimer', e.target.value);
+            
+            bgToggle.onchange = (e) => updateSetting('minimalBg', !e.target.checked);
+            getEl('text-toggle').onchange = (e) => updateSetting('largeText', e.target.checked);
+
+            motionToggle.onchange = (e) => {
+                const reduceMotion = e.target.checked;
+                updateSetting('reduceMotion', reduceMotion);
+
+                if (reduceMotion) {
+                    updateSetting('minimalBg', true);
+                    bgToggle.checked = false;
+                    bgToggle.disabled = true;
+                } else {
+                    bgToggle.disabled = false;
+                }
+            };
+
+            getEl('master-reset-btn').onclick = async () => {
+                if (!await promptForAdminPassword()) return;
+                const result = await showCustomModal({ title: "⚠️ Master Reset ⚠️", message: "This will delete ALL data, including settings, high scores, and the leaderboard. This action cannot be undone. Please type 'RESET' below to confirm.", input: { placeholder: 'Type RESET here' }, buttons: [{ text: 'Confirm Reset', value: 'confirm', class: 'danger-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }] });
+                if (result.button === 'confirm' && result.value.toUpperCase() === 'RESET') {
+                    try {
+                        localStorage.clear();
+                        await showCustomModal({ title: "Success", message: "All data has been reset. The page will now reload.", buttons: [{ text: 'Reload', value: 'ok', class: 'main-btn' }] });
+                        window.location.reload();
+                    } catch (e) { showCustomModal({ title: "Error", message: "An error occurred while trying to reset data.", buttons: [{ text: 'OK', value: 'ok' }] }); }
+                } else if (result.button === 'confirm') { showCustomModal({ title: "Reset Cancelled", message: "Confirmation text did not match. No data was changed.", buttons: [{ text: 'OK', value: 'ok' }] }); }
+            };
+            
+            getEl('new-player-btn').onclick = async () => {
+                if (!await promptForAdminPassword()) return;
+                const confirmed = await showCustomModal({ title: "Confirm Settings Reset", message: "This will reset all appearance and accessibility settings to their defaults. The leaderboard and high score will NOT be affected. Are you sure?", buttons: [{ text: 'Reset Settings', value: 'confirm', class: 'secondary-btn' }, { text: 'Cancel', value: 'cancel', class: 'secondary-btn' }] });
+                if (confirmed.button === 'confirm') { try { localStorage.removeItem('quizSettings'); window.location.reload(); } catch (e) { console.error("Could not reset settings:", e); } }
+            };
+            
+            getEl('manage-leaderboard-btn').onclick = async () => {
+                if (!await promptForAdminPassword()) return;
+                const renderManager = () => {
+                    let leaderboard = [];
+                    try { leaderboard = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(e){}
+                    let listHTML = `<h2 id="modal-title-id">Manage Leaderboard</h2>`;
+                    if (leaderboard.length > 0) { leaderboard.forEach((entry, index) => { listHTML += `<div class="settings-row" style="padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1);"><span>${index + 1}. ${entry.name} - ${entry.score}</span><button class="danger delete-score-btn" data-index="${index}">Delete</button></div>`; }); } 
+                    else { listHTML += '<p style="text-align: center;">The leaderboard is empty.</p>'; }
+                    
+                    const managerContainer = document.createElement('div');
+                    managerContainer.innerHTML = listHTML;
+                    const doneBtn = document.createElement('div');
+                    doneBtn.className = 'modal-buttons';
+                    doneBtn.innerHTML = `<button class="main-btn" id="done-managing">Done</button>`;
+                    managerContainer.appendChild(doneBtn);
+                    
+                    modalContent.innerHTML = `<button class="modal-close-btn" aria-label="Close modal">×</button>${managerContainer.innerHTML}`;
+                    modalOverlay.classList.add('show');
+
+                    modalContent.querySelector('.modal-close-btn').onclick = () => modalOverlay.classList.remove('show');
+                    document.querySelectorAll('.delete-score-btn').forEach(btn => {
+                        btn.onclick = (e) => {
+                            const indexToDelete = parseInt(e.target.dataset.index);
+                            let currentLb = [];
+                            try { currentLb = JSON.parse(localStorage.getItem('cyberQuizLeaderboard')) || []; } catch(err){}
+                            currentLb.splice(indexToDelete, 1);
+                            localStorage.setItem('cyberQuizLeaderboard', JSON.stringify(currentLb));
+                            displayLeaderboard(leaderboardArea);
+                            renderManager();
+                        };
+                    });
+                    getEl('done-managing').onclick = () => modalOverlay.classList.remove('show');
+                };
+                renderManager();
+            };
+        };
+
+        modalOverlay.onclick = (e) => { if (e.target === modalOverlay && !e.currentTarget.classList.contains('is-locked')) { modalOverlay.classList.remove('show'); } };
+        
+        setTimeout(() => { splashScreen.style.opacity = '0'; splashScreen.style.visibility = 'hidden'; }, 2500);
+        
+        applySettings();
+        initStarfield(starfieldCanvas);
+        displayLeaderboard(leaderboardArea);
+        copyrightText.textContent = `© 2025 Saksham Negi. All Rights Reserved.`;
+        
+        document.addEventListener('keydown', (e) => {
+            if (modalOverlay.classList.contains('show')) return;
+            if(!quizContainer.classList.contains('hidden')) {
+                const n = parseInt(e.key);
+                if (n >= 1 && n <= 4) {
+                    const b = document.querySelectorAll('.options button:not(:disabled)');
+                    if(b[n-1]) b[n-1].click();
+                } else if (e.key === 'Enter' && !nextBtn.classList.contains('hidden')) {
+                    nextBtn.click();
+                }
+            }
         });
-        state.hintUsed = true;
-        document.getElementById('hint').disabled = true;
-    }
-}
-
-// =================================================================
-// RESULTS & UI
-// =================================================================
-function showResults() {
-    clearTimer();
-    state.hardModeActive = false;
-    document.getElementById('quiz-area').style.display = 'none';
-    document.getElementById('results-area').style.display = 'block';
-
-    const pct = Math.round((state.score / state.quizData.length) * 100);
-    document.getElementById('score-area').innerHTML = `<h3>Your Score: ${state.score} (${pct}%)</h3>`;
-    
-    if (pct >= 90 && typeof confetti === 'function') {
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-    }
-
-    const playerName = prompt("Enter your name for the leaderboard:", "Player") || "Player";
-
-    const entry = { name: playerName, score: state.score };
-    state.leaderboard.push(entry);
-    state.leaderboard.sort((a, b) => b.score - a.score);
-    if (state.leaderboard.length > 50) state.leaderboard.length = 50;
-    localStorage.setItem('leaderboard', JSON.stringify(state.leaderboard));
-    
-    renderLeaderboard();
-
-    const pos = state.leaderboard.findIndex(e => e.name === entry.name && e.score === entry.score) + 1;
-    if (pos > 0) {
-        const suffix = pos === 1 ? 'st' : pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th';
-        document.getElementById('position-msg').textContent = `You placed ${pos}${suffix} on the leaderboard!`;
-    }
-}
-
-function renderLeaderboard() {
-    const area = document.getElementById('leaderboard-list');
-    if (!state.leaderboard.length) {
-        area.innerHTML = '<p class="small-note">No scores yet. Be the first!</p>';
-    } else {
-        area.innerHTML = state.leaderboard.slice(0, 5).map((x, i) => {
-            const cls = i === 0 ? 'medal-gold' : i === 1 ? 'medal-silver' : i === 2 ? 'medal-bronze' : '';
-            return `<div class="leaderboard-item ${cls}"><span>${i + 1}. ${x.name}</span><span>${x.score}</span></div>`;
-        }).join('');
-    }
-
-    const resultsArea = document.getElementById('results-leaderboard');
-    if (resultsArea) {
-        resultsArea.innerHTML = '<h3>Full Leaderboard</h3><ol>' + state.leaderboard.map(x => `<li>${x.name} — ${x.score}</li>`).join('') + '</ol>';
-    }
-}
-
-function openModal(title, content) {
-    document.getElementById('generic-modal-title').textContent = title;
-    document.getElementById('generic-content').innerHTML = content;
-    document.getElementById('generic-modal').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('generic-modal').classList.add('hidden');
-}
-
-function reviewAnswers() {
-    const content = '<ol>' + state.userAnswers.map(a => {
-        if (!a) return '';
-        const chosenText = a.options[a.chosen] ?? 'Not Answered';
-        const correctText = a.options[a.correct];
-        let explanationHTML = a.explanation ? `<br><i class="small-note">${a.explanation}</i>` : '';
-        return `<li><b>Q:</b> ${a.question}<br><b>Your Answer:</b> ${chosenText}<br><b>Correct:</b> ${correctText}${explanationHTML}</li>`;
-    }).join('') + '</ol>';
-    openModal('Review Answers', content);
-}
-
-// =================================================================
-// HELPERS & EVENT LISTENERS
-// =================================================================
-function shuffleArray(a) { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-function playSound(id) { try { const sound = document.getElementById(id); sound.currentTime = 0; sound.play(); } catch (e) {} }
-function updateProgressBar() { document.getElementById('progress-bar').style.width = `${(state.currentQuestion / state.quizData.length) * 100}%`; }
-
-document.getElementById('start').addEventListener('click', () => {
-    document.getElementById('welcome').style.display = 'none';
-    document.getElementById('quiz-area').style.display = 'block';
-    initializeQuiz();
-});
-
-document.getElementById('next').addEventListener('click', nextQuestion);
-document.getElementById('hint').addEventListener('click', useHint);
-document.getElementById('start-hard').addEventListener('click', startHardMode);
-document.getElementById('close-generic').addEventListener('click', closeModal);
-
-document.getElementById('quit').addEventListener('click', initializeQuiz);
-document.getElementById('home').addEventListener('click', () => {
-    document.getElementById('results-area').style.display = 'none';
-    document.getElementById('welcome').style.display = 'block';
-});
-
-document.getElementById('review').addEventListener('click', reviewAnswers);
-
-document.getElementById('settings').addEventListener('click', () => {
-    const content = `<div class="small-note">Hard Mode Timer (seconds)</div>
-                     <input id="hard-timer-input" type="number" min="5" max="60" value="${hardModeTimer}" />`;
-    openModal('Settings', content);
-});
-
-document.getElementById('about').addEventListener('click', () => {
-    const content = `<p class="small-note">This quiz teaches essential cybersecurity concepts through interactive questions. Test your knowledge and learn how to stay safe online!</p>`;
-    openModal('About This Quiz', content);
-});
-
-// Special handling for closing settings to save the value
-document.getElementById('close-generic').addEventListener('click', () => {
-    const timerInput = document.getElementById('hard-timer-input');
-    if (timerInput) {
-        const v = Number(timerInput.value || hardModeTimer);
-        hardModeTimer = Math.max(5, Math.min(60, v));
-        localStorage.setItem('hardModeTimer', String(hardModeTimer));
-    }
-    closeModal();
-});
-
-// Initial load
-renderLeaderboard();
-
-</script>
+        
+        setTimeout(() => {
+            if (!localStorage.getItem('quizWelcomed')) {
+                showCustomModal({
+                    title: "Welcome to the Cyber Security Quiz!",
+                    message: "Learn how to keep your family safe online in this short, interactive quiz.<br><br><strong>Tip:</strong> Click the <strong>⚙️ Settings</strong> button on the home screen to customize your experience!",
+                    buttons: [{ text: 'Got it!', value: 'ok', class: 'main-btn' }]
+                });
+                try { localStorage.setItem('quizWelcomed', 'true'); } catch(e){}
+            }
+        }, 3000);
+    });
+  </script>
 </body>
 </html>
